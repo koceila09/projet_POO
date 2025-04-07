@@ -8,14 +8,19 @@ public enum MapEntity {
     Grass('G'),
     Land('L'),
     Tree('T'),
+    Bombe('K'),
+    NestWasp('n'),
 
     Gardener('P'),
+    Wasps('W'),
+
+    Hornets('Z'),
     Hedgehog('H'),
+
+
     DoorPrevOpened('<'),
     DoorNextOpened('>'),
     DoorNextClosed('D'),
-
-    NestWasp('n'),
     NestHornet('N');
 
 
