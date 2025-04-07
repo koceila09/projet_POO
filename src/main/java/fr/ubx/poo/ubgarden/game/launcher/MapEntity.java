@@ -14,7 +14,7 @@ public enum MapEntity {
     Gardener('P'),
     Wasps('W'),
 
-    Hornets('L'),
+    Hornets('Z'),
     Hedgehog('H'),
 
 
