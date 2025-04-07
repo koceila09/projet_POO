@@ -16,5 +16,7 @@ public class Hedgehog extends Decor {
     public Hedgehog(Position position, Bonus bonus) {
         super(position, bonus);
     }
+
+
 }
 

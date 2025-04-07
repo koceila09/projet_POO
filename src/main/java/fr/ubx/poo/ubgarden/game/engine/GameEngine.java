@@ -22,6 +22,8 @@
     import javafx.scene.text.TextAlignment;
 
     import java.util.*;
+    import  java.awt.*;
+    import java.util.List;
 
 
     public final class GameEngine {
@@ -165,13 +167,30 @@
         }
 
         private void update(long now) {
-            game.world().getGrid().values().forEach(decor -> decor.update(now));
-
+            // Mettre à jour les informations du jardinier
             gardener.update(now);
 
-            if (gardener.getEnergy() < 0) {
-                gameLoop.stop();
-                showMessage("Perdu!", Color.RED);
+            // Vérifier si la partie est terminée
+            if (game.isGameOver()) {
+                gameLoop.stop(); // Arrêter la boucle de jeu
+
+                // Afficher le message correspondant
+                if (game.isGameWon()) {
+                    showMessage("Game Won!", Color.GREEN); // Victoire
+                } else {
+                    showMessage("Game Over", Color.RED); // Défaite
+                }
+                return; // Sortir de la méthode pour éviter d'exécuter le reste du code
+            }
+
+            // Condition de victoire : le jardinier a trouvé le hérisson
+            if (gardener.hasFoundHedgehog()) {
+                game.endGame(true); // Signaler la victoire
+            }
+
+            // Condition de défaite : énergie inférieure ou égale à 0
+            if (gardener.getEnergy() <= 0) {
+                game.endGame(false); // Signaler la défaite
             }
         }
 
@@ -199,4 +218,6 @@
             layer.setPrefSize(width, height);
             Platform.runLater(() -> scene.getWindow().sizeToScene());
         }
+
+
     }
