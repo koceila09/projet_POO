@@ -5,6 +5,7 @@
 package fr.ubx.poo.ubgarden.game.engine;
 
 import fr.ubx.poo.ubgarden.game.Game;
+import fr.ubx.poo.ubgarden.game.go.personage.Gardener;
 import fr.ubx.poo.ubgarden.game.view.ImageResource;
 import fr.ubx.poo.ubgarden.game.view.ImageResourceFactory;
 import javafx.scene.Group;
@@ -32,6 +33,7 @@ public class StatusBar {
         // Status bar
         level.getStyleClass().add("level");
         level.getChildren().add(new ImageView(ImageResourceFactory.getInstance().getDigit(gameLevel)));
+
 
         ds.setRadius(5.0);
         ds.setOffsetX(3.0);
@@ -76,9 +78,20 @@ public class StatusBar {
     }
 
     public void update(Game game) {
-        insecticideNumber.setText("?");
-        diseaseLevel.setText("x?");
-        energy.setText("?");
+        // Récupérer le jardinier
+        Gardener gardener = game.getGardener();
+
+        // Mettre à jour l'énergie
+        energy.setText(String.valueOf(gardener.getEnergy()));
+
+        // Mettre à jour le niveau de maladie
+        diseaseLevel.setText("x" + gardener.getDiseaseLevel());
+
+        // Mettre à jour le nombre d'insecticides
+        insecticideNumber.setText(String.valueOf(gardener.getInsecticideNumber()));
+
+        // Mettre à jour le niveau du jeu
+        updateLevel(game.world().currentLevel());
     }
 
 }

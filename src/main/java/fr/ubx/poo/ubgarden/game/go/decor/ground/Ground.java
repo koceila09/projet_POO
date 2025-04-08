@@ -15,7 +15,7 @@ public abstract class Ground extends Decor {
 
     @Override
     public int getMoveCost() {
-        return 2; // Coût de déplacement sur la terre
+        return 1; // Coût de déplacement sur la terre
     }
 
 }

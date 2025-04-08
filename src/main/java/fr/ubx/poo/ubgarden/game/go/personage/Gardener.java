@@ -26,7 +26,8 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
     private int maxEnergy;
     private Direction direction;
     private boolean moveRequested = false;
-    private int diseaseLevel = 1;
+    private int diseaseLevel = 0;
+
 
 
 
@@ -97,8 +98,8 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
 
         // Calculer le coût de déplacement
         if (next != null) {
-            int cost = next.getMoveCost() * diseaseLevel;
-            hurt(cost); // Réduire l'énergie en fonction du coût et du niveau de fatigue
+
+            hurt(1); // Réduire l'énergie en fonction du coût et du niveau de fatigue
         }
 
         setPosition(nextPos);
@@ -157,5 +158,22 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
     }
 
 
+
+    public int getDiseaseLevel() {
+        return diseaseLevel; // Retourne le niveau de maladie du jardinier
+    }
+
+    public int getInsecticideNumber() {
+        return insecticideNumber; // Retourne le nombre d'insecticides disponibles
+    }
+
+    private int insecticideNumber = 0; // Variable pour stocker le nombre d'insecticides
+
+
+
+    public void setInsecticideNumber(int number) {
+        this.insecticideNumber = number; // Permet de définir le nombre d'insecticides
+    }
+    
 
 }
