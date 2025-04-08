@@ -17,6 +17,15 @@ public class Hedgehog extends Decor {
         super(position, bonus);
     }
 
+    @Override
+    public int getMoveCost() {
+        return 0;
+    }
 
+
+    @Override
+    public int energyConsumptionWalk() {
+        return super.energyConsumptionWalk();
+    }
 }
 

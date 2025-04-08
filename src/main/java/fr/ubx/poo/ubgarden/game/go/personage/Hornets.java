@@ -15,14 +15,16 @@ import fr.ubx.poo.ubgarden.game.go.decor.Decor;
 
 public class Hornets extends GameObject implements Movable, PickupVisitor, WalkVisitor {
 
-
+    private Position position;
     private Direction direction;
     private boolean moveRequested = false;
+    private int health = 2;
 
     public Hornets(Game game, Position position) {
 
         super(game, position);
         this.direction = Direction.DOWN;
+        this.position = position;
 
     }
 
@@ -38,18 +40,18 @@ public class Hornets extends GameObject implements Movable, PickupVisitor, WalkV
 
     @Override
     public final boolean canMove(Direction direction) {
-        // TO UPDATE
-        return true;
+        // Vérifiez si la prochaine position est valide
+        Position nextPos = direction.nextPosition(getPosition());
+        return game.world().getGrid().inside(nextPos) && game.world().getGrid().get(nextPos) == null;
     }
 
     @Override
     public Position move(Direction direction) {
-        Position nextPos = direction.nextPosition(getPosition());
-        Decor next = game.world().getGrid().get(nextPos);
-        setPosition(nextPos);
-        //if (next != null)
-        //next.pickUpBy(this);
-        return nextPos;
+        if (canMove(direction)) {
+            Position nextPos = direction.nextPosition(getPosition());
+            setPosition(nextPos);
+        }
+        return getPosition();
     }
 
     public void update(long now) {
@@ -72,5 +74,21 @@ public class Hornets extends GameObject implements Movable, PickupVisitor, WalkV
         return direction;
     }
 
+    // Méthode pour interagir avec le jardinier
+    public void interactWith(Gardener gardener) {
+        if (health > 0) {
+            System.out.println("Le jardinier a été piqué par un frelon !");
+            gardener.hurt(30); // Réduire l'énergie de 30 points
+            health--; // Réduire la santé du frelon
+        } else {
+            System.out.println("Le frelon est mort !");
+            setDeleted(true); // Supprimer le frelon après deux piqûres
+        }
+    }
+
+
+    private void die() {
+        setDeleted(true); // Supprimer le frelon du jeu
+    }
 
 }

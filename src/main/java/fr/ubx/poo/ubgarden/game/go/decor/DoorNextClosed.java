@@ -16,5 +16,15 @@ public class DoorNextClosed extends Decor {
     public boolean walkableBy(Gardener gardener) {
         return gardener.canWalkOn(this);
     }
+
+    @Override
+    public int energyConsumptionWalk() {
+        return super.energyConsumptionWalk();
+    }
+
+    @Override
+    public int getMoveCost() {
+        return 0;
+    }
 }
 

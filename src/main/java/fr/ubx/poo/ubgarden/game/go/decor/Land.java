@@ -16,5 +16,15 @@ public class Land extends Decor {
     public Land(Position position, Bonus bonus) {
         super(position, bonus);
     }
+
+    @Override
+    public int getMoveCost() {
+        return 0;
+    }
+
+    @Override
+    public int energyConsumptionWalk() {
+        return super.energyConsumptionWalk();
+    }
 }
 

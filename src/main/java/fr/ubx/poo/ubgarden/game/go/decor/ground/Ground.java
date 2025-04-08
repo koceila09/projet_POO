@@ -13,4 +13,9 @@ public abstract class Ground extends Decor {
         super(position);
     }
 
+    @Override
+    public int getMoveCost() {
+        return 2; // Coût de déplacement sur la terre
+    }
+
 }

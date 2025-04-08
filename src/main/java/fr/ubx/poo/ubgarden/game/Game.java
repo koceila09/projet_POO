@@ -6,6 +6,10 @@ import fr.ubx.poo.ubgarden.game.go.personage.Wasps;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
+import fr.ubx.poo.ubgarden.game.go.personage.Wasps;
+import java.util.stream.Collectors;
+import fr.ubx.poo.ubgarden.game.Position;
 
 
 public class Game {
@@ -13,21 +17,33 @@ public class Game {
     private final Configuration configuration;
     private final World world;
     private final Gardener gardener;
-    private final Wasps wasps;
-    private final Hornets hornets;
+    private final List<Wasps> wasps; // Liste de guêpes
+    private final List<Hornets> hornets;
+    private final List<Position> waspPositions;
+    private final List<Position> hornetPositions;
     private boolean switchLevelRequested = false;
     private int switchLevel;
 
 
-    public Game(World world, Configuration configuration, Position gardenerPosition, Position waspposition, Position hornetposition) {
+
+    public Game(World world, Configuration configuration, Position gardenerPosition,
+                List<Position> waspPositions, List<Position> hornetPositions) {
         this.configuration = configuration;
         this.world = world;
-        gardener = new Gardener(this, gardenerPosition);
-        wasps = new Wasps(this, waspposition);
-        hornets = new Hornets(this, hornetposition);
+        this.gardener = new Gardener(this, gardenerPosition);
+        this.waspPositions = waspPositions; // Initialisation correcte
+        this.hornetPositions = hornetPositions; // Initialisation correcte
 
+        // Initialiser les listes de guêpes et de frelons
+        this.wasps = waspPositions.stream()
+                .map(pos -> new Wasps(this, pos))
+                .toList();
 
+        this.hornets = hornetPositions.stream()
+                .map(pos -> new Hornets(this, pos))
+                .toList();
     }
+
     private boolean gameOver = false;
     private boolean gameWon = false;
 
@@ -46,6 +62,12 @@ public class Game {
     }
 
 
+
+
+
+
+
+
     public Configuration configuration() {
         return configuration;
     }
@@ -54,13 +76,24 @@ public class Game {
         return this.gardener;
     }
 
-    public Wasps getWasps() {
-        return this.wasps;
+    public List<Wasps> getWasps() {
+        return wasps; // Renvoie la liste des guêpes
     }
 
-    public Hornets getHornets() {
-        return this.hornets;
+    public List<Hornets> getHornets() {
+        return hornets; // Renvoie la liste des frelons
     }
+    public List<Position> getWaspPositions() {
+        return waspPositions; // Renvoie les positions des guêpes
+    }
+
+    public List<Position> getHornetPositions() {
+        return hornetPositions; // Renvoie les positions des frelons
+    }
+
+
+
+
 
     public World world() {
         return world;
@@ -83,7 +116,13 @@ public class Game {
         switchLevelRequested = false;
     }
 
-
+    public void checkGameState(Gardener gardener) {
+        if (gardener.hasFoundHedgehog()) {
+            endGame(true); // Victoire
+        } else if (gardener.getEnergy() <= 0) {
+            endGame(false); // Défaite
+        }
+    }
 
 
     // Autres attributs et méthodes...

@@ -13,8 +13,16 @@ public class DoorPrevOpened extends Decor {
         super(position);
     }
 
+    @Override
+    public int getMoveCost() {
+        return 0;
+    }
 
 
+    @Override
+    public int energyConsumptionWalk() {
+        return super.energyConsumptionWalk();
+    }
 }
 
 

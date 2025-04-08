@@ -18,12 +18,18 @@ public class Wasps extends GameObject implements Movable, PickupVisitor, WalkVis
 
     private Direction direction;
     private boolean moveRequested = false;
+    private Position position;
 
     public Wasps(Game game, Position position) {
 
         super(game, position);
         this.direction = Direction.DOWN;
+        this.position = position;
 
+    }
+
+    public Position getPosition() {
+        return position; // Renvoie la position actuelle
     }
 
 
@@ -38,18 +44,18 @@ public class Wasps extends GameObject implements Movable, PickupVisitor, WalkVis
 
     @Override
     public final boolean canMove(Direction direction) {
-        // TO UPDATE
-        return true;
+        // Vérifiez si la prochaine position est valide
+        Position nextPos = direction.nextPosition(getPosition());
+        return game.world().getGrid().inside(nextPos) && game.world().getGrid().get(nextPos) == null;
     }
 
     @Override
     public Position move(Direction direction) {
-        Position nextPos = direction.nextPosition(getPosition());
-        Decor next = game.world().getGrid().get(nextPos);
-        setPosition(nextPos);
-        //if (next != null)
-            //next.pickUpBy(this);
-        return nextPos;
+        if (canMove(direction)) {
+            Position nextPos = direction.nextPosition(getPosition());
+            setPosition(nextPos);
+        }
+        return getPosition();
     }
 
     public void update(long now) {
@@ -70,6 +76,17 @@ public class Wasps extends GameObject implements Movable, PickupVisitor, WalkVis
 
     public Direction getDirection() {
         return direction;
+    }
+
+    // Méthode pour interagir avec le jardinier
+    public void interactWith(Gardener gardener) {
+        System.out.println("Le jardinier a été piqué par une guêpe !");
+        gardener.hurt(20); // Réduire l'énergie de 20 points
+        setDeleted(true); // Supprimer la guêpe après avoir piqué
+    }
+
+    private void die() {
+        setDeleted(true); // Supprimer la guêpe du jeu
     }
 
 

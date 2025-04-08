@@ -3,6 +3,7 @@ package fr.ubx.poo.ubgarden.game.launcher;
 import fr.ubx.poo.ubgarden.game.*;
 
 import java.io.File;
+import java.util.List;
 import java.util.Properties;
 
 public class GameLauncher {
@@ -41,22 +42,40 @@ public class GameLauncher {
     }
 
     public Game load() throws RuntimeException {
+        // Charger une configuration vide par défaut
         Properties emptyConfig = new Properties();
+
+        // Récupérer les informations du niveau par défaut
         MapLevel mapLevel = new MapLevelDefaultStart();
         Position gardenerPosition = mapLevel.getGardenerPosition();
         Position waspPosition = mapLevel.getwaspPosition();
         Position hornetPosition = mapLevel.gethornetPosition();
+
+        // Vérifier que les positions sont valides
         if (gardenerPosition == null)
             throw new RuntimeException("Gardener not found");
         if (waspPosition == null)
-            throw new RuntimeException("wasp not found");
+            throw new RuntimeException("Wasp not found");
         if (hornetPosition == null)
-            throw new RuntimeException("hornet not found");
+            throw new RuntimeException("Hornet not found");
+
+        // Charger la configuration du jeu
         Configuration configuration = getConfiguration(emptyConfig);
+
+        // Créer le monde
         World world = new World(1);
-        Game game = new Game(world, configuration, gardenerPosition,waspPosition,hornetPosition);
+
+        // Convertir les positions individuelles en listes
+        List<Position> waspPositions = List.of(waspPosition);
+        List<Position> hornetPositions = List.of(hornetPosition);
+
+        // Créer une instance de Game avec les listes de positions
+        Game game = new Game(world, configuration, gardenerPosition, waspPositions, hornetPositions);
+
+        // Ajouter le niveau au monde
         Map level = new Level(game, 1, mapLevel);
         world.put(1, level);
+
         return game;
     }
 

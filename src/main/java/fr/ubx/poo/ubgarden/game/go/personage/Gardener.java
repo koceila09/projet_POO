@@ -23,27 +23,41 @@ import javafx.scene.paint.Color;
 public class Gardener extends GameObject implements Movable, PickupVisitor, WalkVisitor {
 
     private int energy;
+    private int maxEnergy;
     private Direction direction;
     private boolean moveRequested = false;
+    private int diseaseLevel = 1;
+
+
 
     public Gardener(Game game, Position position) {
 
         super(game, position);
         this.direction = Direction.DOWN;
-        this.energy = game.configuration().gardenerEnergy();
+        this.maxEnergy = game.configuration().gardenerEnergy(); // Énergie maximale initiale
+        this.energy = maxEnergy;
     }
 
     @Override
     public void pickUp(EnergyBoost energyBoost) {
-// TODO
-        System.out.println("I am taking the boost, I should do something ...");
-
+        System.out.println("Vous avez ramassé un bonus d'énergie !");
+        setEnergy(getEnergy() + energyBoost.getEnergyBoost()); // Augmenter l'énergie
+        energyBoost.setDeleted(true); // Supprimer le bonus après ramassage
     }
 
 
     public int getEnergy() {
         return this.energy;
     }
+    public int getMaxEnergy() {
+        return maxEnergy;
+    }
+    public void setEnergy(int energy) {
+        this.energy = Math.min(energy, maxEnergy); // Limiter l'énergie au maximum autorisé
+    }
+
+
+
 
 
     public void requestMove(Direction direction) {
@@ -77,11 +91,16 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
 
 
     @Override
-
-
     public Position move(Direction direction) {
         Position nextPos = direction.nextPosition(getPosition());
         Decor next = game.world().getGrid().get(nextPos);
+
+        // Calculer le coût de déplacement
+        if (next != null) {
+            int cost = next.getMoveCost() * diseaseLevel;
+            hurt(cost); // Réduire l'énergie en fonction du coût et du niveau de fatigue
+        }
+
         setPosition(nextPos);
 
         // Vérifier si le jardinier a trouvé le hérisson
@@ -124,8 +143,13 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
         }
     }
 
-    public void hurt() {
-        hurt(1);
+
+
+
+    public void increaseDiseaseLevel(int duration) {
+        this.diseaseLevel += 1; // Augmenter le niveau de fatigue
+        System.out.println("Votre niveau de fatigue augmente ! Nouveau niveau : " + diseaseLevel);
+        // TODO : Implémenter une diminution automatique après une durée donnée
     }
 
     public Direction getDirection() {

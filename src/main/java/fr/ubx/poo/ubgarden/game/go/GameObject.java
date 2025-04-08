@@ -48,8 +48,12 @@ public abstract class GameObject {
 
     public void update(long now) {
     }
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
 
     public void remove() {
         deleted = true;
     }
+
 }

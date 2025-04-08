@@ -18,4 +18,14 @@ public class Flowers extends Decor {
         return gardener.canWalkOn(this);
     }
 
+    @Override
+    public int energyConsumptionWalk() {
+        return super.energyConsumptionWalk();
+    }
+
+    @Override
+    public int getMoveCost() {
+        return 0;
+    }
+
 }
