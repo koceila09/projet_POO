@@ -14,6 +14,7 @@ import fr.ubx.poo.ubgarden.game.go.WalkVisitor;
 import fr.ubx.poo.ubgarden.game.go.bonus.EnergyBoost;
 import fr.ubx.poo.ubgarden.game.go.decor.Decor;
 import fr.ubx.poo.ubgarden.game.go.decor.Hedgehog;
+import fr.ubx.poo.ubgarden.game.go.decor.Land;
 import fr.ubx.poo.ubgarden.game.launcher.MapEntity;
 
 import javafx.scene.paint.Color;
@@ -98,8 +99,12 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
 
         // Calculer le coût de déplacement
         if (next != null) {
-
-            hurt(1); // Réduire l'énergie en fonction du coût et du niveau de fatigue
+            if (next instanceof Land) {
+                hurt(2);
+            }
+            else {
+                hurt(1);
+            }
         }
 
         setPosition(nextPos);
@@ -143,8 +148,6 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
             System.out.println("Vous avez perdu " + damage + " points d'énergie. Énergie restante : " + energy);
         }
     }
-
-
 
 
     public void increaseDiseaseLevel(int duration) {
