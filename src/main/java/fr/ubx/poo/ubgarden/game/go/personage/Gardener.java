@@ -28,6 +28,7 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
     private Direction direction;
     private boolean moveRequested = false;
     private int diseaseLevel = 0;
+    private int insecticideNumber = 0;
 
 
 
@@ -44,7 +45,7 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
     public void pickUp(EnergyBoost energyBoost) {
         System.out.println("Vous avez ramassé un bonus d'énergie !");
         setEnergy(getEnergy() + energyBoost.getEnergyBoost()); // Augmenter l'énergie
-        energyBoost.setDeleted(true); // Supprimer le bonus après ramassage
+        energyBoost.setDeleted(false); // Supprimer le bonus après ramassage
     }
 
 
@@ -167,16 +168,12 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
     }
 
     public int getInsecticideNumber() {
-        return insecticideNumber; // Retourne le nombre d'insecticides disponibles
+        return insecticideNumber;
     }
-
-    private int insecticideNumber = 0; // Variable pour stocker le nombre d'insecticides
-
-
 
     public void setInsecticideNumber(int number) {
-        this.insecticideNumber = number; // Permet de définir le nombre d'insecticides
+        this.insecticideNumber = number;
     }
-    
+
 
 }

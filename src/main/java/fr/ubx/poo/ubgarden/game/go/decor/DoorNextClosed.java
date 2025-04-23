@@ -5,6 +5,7 @@
 package fr.ubx.poo.ubgarden.game.go.decor;
 
 import fr.ubx.poo.ubgarden.game.Position;
+import fr.ubx.poo.ubgarden.game.go.Movable;
 import fr.ubx.poo.ubgarden.game.go.personage.Gardener;
 
 public class DoorNextClosed extends Decor {
@@ -26,5 +27,7 @@ public class DoorNextClosed extends Decor {
     public int getMoveCost() {
         return 0;
     }
+
+
 }
 

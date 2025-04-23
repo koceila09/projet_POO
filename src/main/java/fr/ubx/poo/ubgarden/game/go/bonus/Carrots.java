@@ -14,4 +14,14 @@ public class Carrots extends Bonus {
     public void remove() {
         super.remove();
     }
+
+
+
+    @Override
+    public void pickUpBy(Gardener gardener) {
+        System.out.println("Vous avez ramassé une pomme ! Votre énergie augmente.");
+
+        setDeleted(true); // Supprimer la pomme après ramassage
+    }
+
 }

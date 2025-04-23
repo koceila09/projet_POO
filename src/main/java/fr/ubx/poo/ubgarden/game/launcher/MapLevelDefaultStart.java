@@ -1,6 +1,7 @@
 package fr.ubx.poo.ubgarden.game.launcher;
 
 
+import fr.ubx.poo.ubgarden.game.Position;
 import fr.ubx.poo.ubgarden.game.go.decor.Land;
 
 import static fr.ubx.poo.ubgarden.game.launcher.MapEntity.*;
@@ -11,7 +12,7 @@ public class MapLevelDefaultStart extends MapLevel {
     private final static int width = 18;
     private final static int height = 8;
         private final MapEntity[][] level1 = {
-                {Grass, Bombe, Grass, Grass, Grass, Carrots, Carrots, Carrots, Grass, Flowers, Grass, Grass, Grass, Grass, Bombe, Grass, Grass, DoorNextClosed},
+                {Grass, Bombe, Grass, Grass, Grass, Carrots, Carrots, Carrots, Grass, Flowers, Grass, Grass, Grass, Grass, Bombe, Grass, DoorNextOpened, DoorNextClosed},
                 {Bombe, Gardener, Grass, Grass, Grass, Carrots, Carrots, Carrots, Grass, Apple, Grass, Grass, Grass, Grass, Apple, Grass, Grass, Grass},
                 {Grass, Grass, Grass, Grass, Grass, Land, Land, Land, Grass, Grass, Flowers, Flowers, Grass, Grass, Grass, Grass, Grass, Grass},
                 {Grass, Grass, Grass, Grass, Grass, Land, Land, Land, Grass, Grass, Grass, Grass, Grass, Tree, Flowers, NestHornet, Grass, Flowers},
@@ -21,12 +22,47 @@ public class MapLevelDefaultStart extends MapLevel {
                 {Apple, Tree, Apple, Tree, Grass, Grass, Wasps, Grass, Grass, Grass, Grass, Grass, Grass, Tree, Grass, Grass, Grass, Grass}
         };
 
+        private final MapEntity[][] level2 = {
+            {Grass, Gardener, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass},
+            {Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass},
+            {Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass},
+            {Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass},
+            {Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass},
+            {Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Hedgehog, Grass, Grass, Grass},
+            {Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass},
+            {Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass,Grass}
+        };
+
+        private final MapEntity[][] level3 = {
+            {Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass},
+            {Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass},
+            {Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass},
+            {Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass},
+            {Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass},
+            {Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass},
+            {Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass},
+            {Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, Grass, DoorNextClosed}
+        };
+
     public MapLevelDefaultStart() {
         super(width, height);
         for (int i = 0; i < width; i++)
             for (int j = 0; j < height; j++)
                 set(i, j, level1[j][i]);
     }
+
+    public int countCarrots() {
+        int carrotCount = 0;
+        for (int j = 0; j < height; j++) {
+            for (int i = 0; i < width; i++) {
+                if (level1[j][i] == Carrots) {
+                    carrotCount++;
+                }
+            }
+        }
+        return carrotCount;
+    }
+
 
 
 }

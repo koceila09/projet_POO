@@ -15,6 +15,13 @@ public class Bombe_insecticide extends Bonus {
     }
 
 
+    @Override
+    public void pickUpBy(Gardener gardener) {
+        System.out.println("Vous avez ramassé un insecticide !");
+        gardener.setInsecticideNumber(gardener.getInsecticideNumber() + 1); // Incrémenter le compteur d'insecticides
+        setDeleted(true); // Marquer comme supprimé
+    }
+
 }
 
 
