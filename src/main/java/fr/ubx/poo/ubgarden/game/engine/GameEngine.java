@@ -47,14 +47,9 @@ public final class GameEngine {
         this.gardener = game.getGardener();
 
         // Initialiser la liste de guêpes
-        this.wasps = game.getWaspPositions().stream()
-                .map(pos -> new Wasps(game, pos))
-                .toList();
+        this.wasps = game.getWasps();     // ⚠️ correction ici
+        this.hornets = game.getHornets();
 
-        // Initialiser la liste de frelons
-        this.hornets = game.getHornetPositions().stream()
-                .map(pos -> new Hornets(game, pos))
-                .toList();
 
         initialize();
         buildAndSetGameLoop();
@@ -116,6 +111,7 @@ public final class GameEngine {
             public void handle(long now) {
                 checkLevel();
                 processInput();
+                gardener.update(now);
                 update(now);
                 checkCollision();
                 cleanupSprites();
@@ -205,17 +201,21 @@ public final class GameEngine {
     public void cleanupSprites() {
         sprites.forEach(sprite -> {
             if (sprite.getGameObject().isDeleted()) {
+                System.out.println("Sprite marqué pour suppression : " + sprite.getGameObject().getClass().getSimpleName());
+                sprite.remove(); // ← Ajout direct ici
                 cleanUpSprites.add(sprite);
             }
         });
-        cleanUpSprites.forEach(Sprite::remove);
         sprites.removeAll(cleanUpSprites);
         cleanUpSprites.clear();
     }
 
+
     private void render() {
+        sprites.forEach(Sprite::updateImage); // ← mise à jour d'image ou suppression si deleted
         sprites.forEach(Sprite::render);
     }
+
 
     public void start() {
         gameLoop.start();

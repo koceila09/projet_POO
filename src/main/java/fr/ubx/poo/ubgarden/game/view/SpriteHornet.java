@@ -21,10 +21,15 @@ public class SpriteHornet extends Sprite {
 
     @Override
     public void updateImage() {
-        Hornets hornets = (Hornets)  getGameObject();
-        Image image = getImage(hornets.getDirection());
-        setImage(image);
+        Hornets hornet = (Hornets) getGameObject();
+        if (hornet.isDeleted()) {
+            System.out.println("REMOVE appelé !");
+            remove(); // Supprime visuellement
+        } else {
+            setImage(getImage(hornet.getDirection()));
+        }
     }
+
 
     public Image getImage(Direction direction) {
         return ImageResourceFactory.getInstance().getHornet(direction);

@@ -50,6 +50,7 @@ public abstract class GameObject {
     }
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
+        setModified(true);
     }
 
     public void remove() {

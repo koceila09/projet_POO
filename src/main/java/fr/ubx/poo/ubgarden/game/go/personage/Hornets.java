@@ -18,7 +18,7 @@ public class Hornets extends GameObject implements Movable, PickupVisitor, WalkV
     private Position position;
     private Direction direction;
     private boolean moveRequested = false;
-    private int health = 2;
+    private int health = 1;
 
     public Hornets(Game game, Position position) {
 
@@ -54,14 +54,7 @@ public class Hornets extends GameObject implements Movable, PickupVisitor, WalkV
         return getPosition();
     }
 
-    public void update(long now) {
-        if (moveRequested) {
-            if (canMove(direction)) {
-                move(direction);
-            }
-        }
-        moveRequested = false;
-    }
+
 
     public void hurt(int damage) {
     }
@@ -74,21 +67,38 @@ public class Hornets extends GameObject implements Movable, PickupVisitor, WalkV
         return direction;
     }
 
-    // Méthode pour interagir avec le jardinier
+    private boolean collisionHandled = false;
+
     public void interactWith(Gardener gardener) {
-        if (health > 0) {
+        if (!collisionHandled) {
             System.out.println("Le jardinier a été piqué par un frelon !");
-            gardener.hurt(30); // Réduire l'énergie de 30 points
-            health--; // Réduire la santé du frelon
-        } else {
-            System.out.println("Le frelon est mort !");
-            setDeleted(true); // Supprimer le frelon après deux piqûres
+            gardener.hurt(30);
+            health--;
+            collisionHandled = true;  // Bloque les dégâts jusqu'au prochain déplacement
+
+            if (health <= 0) {
+                System.out.println("Le frelon est mort !");
+                setDeleted(true);
+            }
         }
     }
 
+    // Réinitialiser collisionHandled quand Hornet bouge
+    public void update(long now) {
+        collisionHandled = false;
+        if (moveRequested) {
+            if (canMove(direction)) {
+                move(direction);
+            }
+        }
+        moveRequested = false;
+    }
+
+
+
 
     private void die() {
-        setDeleted(true); // Supprimer le frelon du jeu
+        setDeleted(false); // Supprimer le frelon du jeu
     }
 
 }
