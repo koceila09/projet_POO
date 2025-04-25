@@ -27,7 +27,9 @@ public class Hornets extends GameObject implements Movable, PickupVisitor, WalkV
         this.position = position;
 
     }
-
+    public Position getPosition() {
+        return position; // Renvoie la position actuelle
+    }
 
 
     public void requestMove(Direction direction) {
@@ -66,6 +68,7 @@ public class Hornets extends GameObject implements Movable, PickupVisitor, WalkV
     public Direction getDirection() {
         return direction;
     }
+
 
     private boolean collisionHandled = false;
 

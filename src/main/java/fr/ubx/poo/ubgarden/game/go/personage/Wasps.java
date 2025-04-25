@@ -19,6 +19,8 @@ public class Wasps extends GameObject implements Movable, PickupVisitor, WalkVis
     private Direction direction;
     private boolean moveRequested = false;
     private Position position;
+    private int health = 1;
+    private boolean collisionHandled = false;
 
     public Wasps(Game game, Position position) {
 
@@ -58,14 +60,7 @@ public class Wasps extends GameObject implements Movable, PickupVisitor, WalkVis
         return getPosition();
     }
 
-    public void update(long now) {
-        if (moveRequested) {
-            if (canMove(direction)) {
-                move(direction);
-            }
-        }
-        moveRequested = false;
-    }
+
 
     public void hurt(int damage) {
     }
@@ -80,13 +75,31 @@ public class Wasps extends GameObject implements Movable, PickupVisitor, WalkVis
 
     // Méthode pour interagir avec le jardinier
     public void interactWith(Gardener gardener) {
-        System.out.println("Le jardinier a été piqué par une guêpe !");
-        gardener.hurt(20); // Réduire l'énergie de 20 points
-        setDeleted(true); // Supprimer la guêpe après avoir piqué
+        if (!collisionHandled && !isDeleted()) {
+            System.out.println("Le jardinier a été piqué par une guêpe !");
+            gardener.hurt(20); // -20 points d'énergie
+            health--;
+            collisionHandled = true;
+            if (health <= 0) {
+                System.out.println("La guêpe est morte !");
+                setDeleted(true);
+            }
+        }
+    }
+
+    // Réinitialiser collisionHandled quand Hornet bouge
+    public void update(long now) {
+        collisionHandled = false;
+        if (moveRequested) {
+            if (canMove(direction)) {
+                move(direction);
+            }
+        }
+        moveRequested = false;
     }
 
     private void die() {
-        setDeleted(true); // Supprimer la guêpe du jeu
+        setDeleted(false); // Supprimer la guêpe du jeu
     }
 
 

@@ -21,8 +21,12 @@ public class SpriteWasp extends Sprite {
     @Override
     public void updateImage() {
         Wasps wasps = (Wasps) getGameObject();
-        Image image = getImage(wasps.getDirection());
-        setImage(image);
+        if (wasps.isDeleted()) {
+            System.out.println("REMOVE appelé !");
+            remove(); // Supprime visuellement
+        } else {
+            setImage(getImage(wasps.getDirection()));
+        }
     }
 
     public Image getImage(Direction direction) {
