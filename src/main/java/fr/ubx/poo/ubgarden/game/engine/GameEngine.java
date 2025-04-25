@@ -227,5 +227,19 @@ public final class GameEngine {
         Platform.runLater(() -> scene.getWindow().sizeToScene());
     }
 
+    public void handle(long now) {
+        checkLevel();
+        processInput();
+
+        gardener.update(now); // ⬅️ AJOUT ICI
+
+        update(now);
+        checkCollision();
+        cleanupSprites();
+        render();
+        statusBar.update(game);
+    }
+
+
 
 }

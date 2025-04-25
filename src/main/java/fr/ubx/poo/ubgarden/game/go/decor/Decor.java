@@ -26,6 +26,7 @@ public abstract class Decor extends GameObject implements Walkable, Pickupable {
 
     public void setBonus(Bonus bonus) {
         this.bonus = bonus;
+        this.setModified(true);
     }
 
     @Override
@@ -44,6 +45,11 @@ public abstract class Decor extends GameObject implements Walkable, Pickupable {
             setBonus(null); // Supprimer le bonus après ramassage
         }
     }
+    public void clearBonus() {
+        this.bonus = null;
+        setModified(true); // pour redessiner la case sans bonus
+    }
+
     public abstract int getMoveCost();
 
 }

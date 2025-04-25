@@ -29,6 +29,7 @@ public class StatusBar {
     private final DropShadow ds = new DropShadow();
 
 
+
     public StatusBar(Group root, int sceneWidth, int sceneHeight) {
         // Status bar
         level.getStyleClass().add("level");

@@ -22,10 +22,10 @@ public class EnergyBoost extends Bonus {
 
     @Override
     public void pickUpBy(Gardener gardener) {
-        System.out.println("Vous avez ramassé une pomme ! Votre énergie augmente.");
-        gardener.setEnergy(Math.min(gardener.getEnergy() + ENERGY_BOOST, gardener.getMaxEnergy()));
-        setDeleted(true); // Supprimer la pomme après ramassage
+        gardener.pickUp(this); // Délègue l'effet au jardinier
     }
+
+
 
 
 }
