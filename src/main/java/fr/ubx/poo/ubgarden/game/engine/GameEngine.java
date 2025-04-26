@@ -2,6 +2,11 @@ package fr.ubx.poo.ubgarden.game.engine;
 
 import fr.ubx.poo.ubgarden.game.Direction;
 import fr.ubx.poo.ubgarden.game.Game;
+import fr.ubx.poo.ubgarden.game.Level;
+import fr.ubx.poo.ubgarden.game.Position;
+import fr.ubx.poo.ubgarden.game.go.decor.Decor;
+import fr.ubx.poo.ubgarden.game.go.decor.DoorNextClosed;
+import fr.ubx.poo.ubgarden.game.go.decor.DoorNextOpened;
 import fr.ubx.poo.ubgarden.game.go.personage.Gardener;
 import fr.ubx.poo.ubgarden.game.go.personage.Hornets;
 import fr.ubx.poo.ubgarden.game.go.personage.Wasps;
@@ -123,9 +128,25 @@ public final class GameEngine {
 
     private void checkLevel() {
         if (game.isSwitchLevelRequested()) {
-            // TODO: Implémenter le changement de niveau
+            int nextLevel = game.getSwitchLevel();
+
+            // Changer de niveau dans le World
+            game.world().setCurrentLevel(nextLevel);
+
+            // Effacer les sprites existants
+            sprites.clear();
+            layer.getChildren().clear();
+
+            // Recharger le jeu (sprites, décor, guêpes, frelons…)
+            initialize();
+
+            // Marquer le switch comme terminé
+            game.clearSwitchLevel();
+
+            System.out.println("➡️ Passage au niveau " + nextLevel);
         }
     }
+
 
     private void checkCollision() {
         for (Wasps wasp : game.getWasps()) {
@@ -180,6 +201,13 @@ public final class GameEngine {
         // Mettre à jour les informations du jardinier
         gardener.update(now);
 
+        // 👉 Ajouter ici la vérification des carottes
+        if (game.allCarrotsCollected() && !game.areDoorsOpened()) {
+            openDoors();
+            game.setDoorsOpened(true); // 🚨 Marquer que c’est fait
+        }
+
+
         // Vérifier l'état de la partie
         game.checkGameState(gardener);
 
@@ -196,6 +224,53 @@ public final class GameEngine {
             return; // Sortir de la méthode pour éviter d'exécuter le reste du code
         }
     }
+
+
+    private void openDoors() {
+        var grid = game.world().getGrid();
+        List<Position> positionsToOpen = new ArrayList<>();
+
+        // 1. Trouver toutes les portes fermées
+        for (Decor decor : grid.values()) {
+            if (decor instanceof DoorNextClosed) {
+                positionsToOpen.add(decor.getPosition());
+            }
+        }
+        for (Position position : positionsToOpen) {
+            DoorNextOpened doorOpened = new DoorNextOpened(position);
+            ((Level) grid).put(position, doorOpened);
+
+            // Supprimer l’ancien sprite (s’il existe)
+            sprites.removeIf(sprite -> sprite.getPosition().equals(position));
+
+            // Ajouter le nouveau sprite pour la porte ouverte
+            sprites.add(SpriteFactory.create(layer, doorOpened));
+
+            // 👉 Très important : marquer le décor comme modifié
+            doorOpened.setModified(true);
+        }
+
+        // 2. Remplacer les portes et mettre à jour les sprites
+        for (Position position : positionsToOpen) {
+            DoorNextOpened doorOpened = new DoorNextOpened(position);
+            ((fr.ubx.poo.ubgarden.game.Level)grid).put(position, doorOpened);
+
+            // 🛠 Maintenant : mettre à jour l'affichage (sprites)
+            // Supprimer le sprite existant de la porte fermée
+            sprites.removeIf(sprite -> sprite.getGameObject().getPosition().equals(position));
+
+            // Créer un nouveau sprite pour la porte ouverte
+            sprites.add(SpriteFactory.create(layer, doorOpened));
+            doorOpened.setModified(true);
+        }
+
+        System.out.println("Toutes les carottes ont été ramassées, les portes sont ouvertes !");
+    }
+
+
+
+
+
 
 
     public void cleanupSprites() {

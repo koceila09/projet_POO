@@ -64,6 +64,9 @@ public class ImageResourceFactory {
         static final ImageResourceFactory INSTANCE = new ImageResourceFactory();
     }
 
+    public Image getDoorOpened() {
+        return get(ImageResource.DOOR_OPENED);
+    }
 
 
 

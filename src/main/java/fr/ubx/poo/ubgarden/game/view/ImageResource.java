@@ -13,7 +13,8 @@ public enum ImageResource {
 
     GROUND("ground.png"),
 
-    DOOR_OPENED("door_opened.png"), DOOR_CLOSED("door_closed.png"),
+    DOOR_OPENED("door_opened.png"), DOOR_CLOSED("door_closed.png"),DOOR_NEXT_OPENED("door_opened.png"),
+
 
 
     // Gardener and hornets
@@ -43,6 +44,7 @@ public enum ImageResource {
     public String getFileName() {
         return fileName;
     }
+
 
 }
 

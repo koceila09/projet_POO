@@ -12,8 +12,10 @@ import fr.ubx.poo.ubgarden.game.go.Movable;
 import fr.ubx.poo.ubgarden.game.go.PickupVisitor;
 import fr.ubx.poo.ubgarden.game.go.WalkVisitor;
 import fr.ubx.poo.ubgarden.game.go.bonus.Bombe_insecticide;
+import fr.ubx.poo.ubgarden.game.go.bonus.Carrots;
 import fr.ubx.poo.ubgarden.game.go.bonus.EnergyBoost;
 import fr.ubx.poo.ubgarden.game.go.decor.Decor;
+import fr.ubx.poo.ubgarden.game.go.decor.DoorNextOpened;
 import fr.ubx.poo.ubgarden.game.go.decor.Hedgehog;
 import fr.ubx.poo.ubgarden.game.go.decor.Land;
 import fr.ubx.poo.ubgarden.game.launcher.MapEntity;
@@ -59,6 +61,20 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
         }
 
     }
+    public void pickUp(Carrots carrots) {
+        System.out.println("Vous avez ramassé une carotte !");
+        carrots.setDeleted(true);
+
+        // Supprimer de la grille
+        Decor decor = game.world().getGrid().get(getPosition());
+        if (decor != null && decor.getBonus() == carrots) {
+            decor.setBonus(null);
+        }
+
+        // Informer le jeu qu'une carotte a été ramassée
+        game.collectCarrot();
+    }
+
     public void pickUp(Bombe_insecticide bomb) {
         System.out.println("Vous avez ramassé une bombe insecticide !");
         setInsecticideNumber(getInsecticideNumber() + 1);
@@ -137,6 +153,13 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
 
         setPosition(nextPos);
 
+        // 👉 Ajouter ici pour détecter une porte ouverte
+        Decor decor = game.world().getGrid().get(getPosition());
+        if (decor instanceof DoorNextOpened) {
+            System.out.println("Porte ouverte, passage au niveau suivant !");
+            game.requestSwitchLevel(game.world().currentLevel() + 1);
+        }
+
         // Vérifier si le jardinier a trouvé le hérisson
         if (next instanceof Hedgehog) {
             System.out.println("Game Won ! Vous avez retrouvé le hérisson !");
@@ -151,6 +174,7 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
 
         return nextPos;
     }
+
     public boolean hasFoundHedgehog() {
         // Récupérer l'entité à la position actuelle du jardinier
         Decor decorAtCurrentPosition = game.world().getGrid().get(getPosition());

@@ -23,6 +23,7 @@ public class Game {
     private final List<Position> hornetPositions;
     private boolean switchLevelRequested = false;
     private int switchLevel;
+    private int carrotCount = 0;
 
 
 
@@ -127,9 +128,28 @@ public class Game {
 
     // Autres attributs et méthodes...
 
+    public void setCarrotCount(int count) {
+        this.carrotCount = count;
+    }
+
+    public void collectCarrot() {
+        carrotCount--;
+    }
+
+    public boolean allCarrotsCollected() {
+        return carrotCount <= 0;
+    }
 
 
+    private boolean doorsOpened = false;
 
+    public boolean areDoorsOpened() {
+        return doorsOpened;
+    }
+
+    public void setDoorsOpened(boolean opened) {
+        this.doorsOpened = opened;
+    }
 
 
 }

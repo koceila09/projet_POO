@@ -24,8 +24,6 @@ public class GameLauncher {
     }
 
     private Configuration getConfiguration(Properties properties) {
-
-        // Load parameters
         int waspMoveFrequency = integerProperty(properties, "waspMoveFrequency", 2);
         int hornetMoveFrequency = integerProperty(properties, "hornetMoveFrequency", 1);
 
@@ -38,49 +36,73 @@ public class GameLauncher {
     }
 
     public Game load(File file) {
-        return null;
-    }
+        try {
+            // Charger la première map (level1.txt)
+            MapEntity[][] entities1 = MapLoader.loadMap(file.getPath());
 
-    public Game load() throws RuntimeException {
-        // Charger une configuration vide par défaut
-        Properties emptyConfig = new Properties();
+            int width = entities1[0].length;
+            int height = entities1.length;
 
-        // Récupérer les informations du niveau par défaut
-        MapLevel mapLevel = new MapLevelDefaultStart();
-        Position gardenerPosition = mapLevel.getGardenerPosition();
-        Position waspPosition = mapLevel.getwaspPosition();
-        Position hornetPosition = mapLevel.gethornetPosition();
+            MapLevel mapLevel1 = new MapLevel(width, height);
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    mapLevel1.set(x, y, entities1[y][x]);
+                }
+            }
 
-        // Vérifier que les positions sont valides
-        if (gardenerPosition == null)
-            throw new RuntimeException("Gardener not found");
-        if (waspPosition == null)
-            throw new RuntimeException("Wasp not found");
-        if (hornetPosition == null)
-            throw new RuntimeException("Hornet not found");
+            // Récupérer les positions importantes du niveau 1
+            Position gardenerPosition = mapLevel1.getGardenerPosition();
+            Position waspPosition = mapLevel1.getwaspPosition();
+            Position hornetPosition = mapLevel1.gethornetPosition();
 
-        // Charger la configuration du jeu
-        Configuration configuration = getConfiguration(emptyConfig);
+            if (gardenerPosition == null)
+                throw new RuntimeException("Gardener not found");
+            if (waspPosition == null)
+                throw new RuntimeException("Wasp not found");
+            if (hornetPosition == null)
+                throw new RuntimeException("Hornet not found");
 
-        // Créer le monde
-        World world = new World(1);
+            // Charger la deuxième map (level2.txt)
+            File fileLevel2 = new File("src/main/resources/maps/level2.txt");
+            MapEntity[][] entities2 = MapLoader.loadMap(fileLevel2.getPath());
 
-        // Convertir les positions individuelles en listes
-        List<Position> waspPositions = List.of(waspPosition);
-        List<Position> hornetPositions = List.of(hornetPosition);
+            int width2 = entities2[0].length;
+            int height2 = entities2.length;
 
-        // Créer une instance de Game avec les listes de positions
-        Game game = new Game(world, configuration, gardenerPosition, waspPositions, hornetPositions);
+            MapLevel mapLevel2 = new MapLevel(width2, height2);
+            for (int y = 0; y < height2; y++) {
+                for (int x = 0; x < width2; x++) {
+                    mapLevel2.set(x, y, entities2[y][x]);
+                }
+            }
 
-        // Ajouter le niveau au monde
-        Map level = new Level(game, 1, mapLevel);
-        world.put(1, level);
+            // Configuration vide pour le moment
+            Properties emptyConfig = new Properties();
+            Configuration configuration = getConfiguration(emptyConfig);
 
-        return game;
+            // Créer le monde avec 2 niveaux
+            World world = new World(2);
+
+            List<Position> waspPositions = List.of(waspPosition);
+            List<Position> hornetPositions = List.of(hornetPosition);
+
+            // Créer l'objet Game
+            Game game = new Game(world, configuration, gardenerPosition, waspPositions, hornetPositions);
+
+            // Associer les niveaux au monde
+            Map level1 = new Level(game, 1, mapLevel1);
+            Map level2 = new Level(game, 2, mapLevel2);
+
+            world.put(1, level1);
+            world.put(2, level2);
+
+            return game;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load map from file", e);
+        }
     }
 
     private static class LoadSingleton {
         static final GameLauncher INSTANCE = new GameLauncher();
     }
-
 }

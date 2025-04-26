@@ -84,11 +84,22 @@ public class Level implements Map {
                         grass.setBonus(new Carrots(position, grass));
                         decors.put(position, grass);
                         break;
+
                     }
+                    case Gardener:
+                    case Wasps:
+                    case Hornets:
+                        decors.put(position, new Grass(position)); // mettre de l'herbe à leur place
+                        break;
+
                     default:
                         throw new RuntimeException("EntityCode " + mapEntity.name() + " not processed");
                 }
             }
+    }
+
+    public void put(Position position, Decor decor) {
+        decors.put(position, decor);
     }
 
     @Override
