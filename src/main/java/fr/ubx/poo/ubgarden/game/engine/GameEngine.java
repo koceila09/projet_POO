@@ -2,10 +2,9 @@ package fr.ubx.poo.ubgarden.game.engine;
 
 import fr.ubx.poo.ubgarden.game.Direction;
 import fr.ubx.poo.ubgarden.game.Game;
-import fr.ubx.poo.ubgarden.game.Level;
-import fr.ubx.poo.ubgarden.game.Position;
+import fr.ubx.poo.ubgarden.game.go.bonus.Carrots;
+import fr.ubx.poo.ubgarden.game.go.bonus.DoorNextClose;
 import fr.ubx.poo.ubgarden.game.go.decor.Decor;
-import fr.ubx.poo.ubgarden.game.go.decor.DoorNextClosed;
 import fr.ubx.poo.ubgarden.game.go.decor.DoorNextOpened;
 import fr.ubx.poo.ubgarden.game.go.personage.Gardener;
 import fr.ubx.poo.ubgarden.game.go.personage.Hornets;
@@ -21,8 +20,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
-import fr.ubx.poo.ubgarden.game.go.personage.Hornets;
-import fr.ubx.poo.ubgarden.game.go.*;
 
 import java.util.*;
 
@@ -126,26 +123,7 @@ public final class GameEngine {
         };
     }
 
-    private void checkLevel() {
-        if (game.isSwitchLevelRequested()) {
-            int nextLevel = game.getSwitchLevel();
 
-            // Changer de niveau dans le World
-            game.world().setCurrentLevel(nextLevel);
-
-            // Effacer les sprites existants
-            sprites.clear();
-            layer.getChildren().clear();
-
-            // Recharger le jeu (sprites, décor, guêpes, frelons…)
-            initialize();
-
-            // Marquer le switch comme terminé
-            game.clearSwitchLevel();
-
-            System.out.println("➡️ Passage au niveau " + nextLevel);
-        }
-    }
 
 
     private void checkCollision() {
@@ -198,76 +176,25 @@ public final class GameEngine {
     }
 
     private void update(long now) {
-        // Mettre à jour les informations du jardinier
         gardener.update(now);
 
-        // 👉 Ajouter ici la vérification des carottes
-        if (game.allCarrotsCollected() && !game.areDoorsOpened()) {
-            openDoors();
-            game.setDoorsOpened(true); // 🚨 Marquer que c’est fait
+        if (allCarrotsCollected()) {
+            removeClosedDoors();
+            rebuildSprites();
         }
 
 
-        // Vérifier l'état de la partie
         game.checkGameState(gardener);
 
-        // Si la partie est terminée, arrêter la boucle et afficher le message
         if (game.isGameOver()) {
-            gameLoop.stop(); // Arrêter la boucle de jeu
-
-            // Afficher le message correspondant
+            gameLoop.stop();
             if (game.isGameWon()) {
-                showMessage("Game Won!", Color.GREEN); // Victoire
+                showMessage("Game Won!", Color.GREEN);
             } else {
-                showMessage("Game Over", Color.RED); // Défaite
-            }
-            return; // Sortir de la méthode pour éviter d'exécuter le reste du code
-        }
-    }
-
-
-    private void openDoors() {
-        var grid = game.world().getGrid();
-        List<Position> positionsToOpen = new ArrayList<>();
-
-        // 1. Trouver toutes les portes fermées
-        for (Decor decor : grid.values()) {
-            if (decor instanceof DoorNextClosed) {
-                positionsToOpen.add(decor.getPosition());
+                showMessage("Game Over", Color.RED);
             }
         }
-        for (Position position : positionsToOpen) {
-            DoorNextOpened doorOpened = new DoorNextOpened(position);
-            ((Level) grid).put(position, doorOpened);
-
-            // Supprimer l’ancien sprite (s’il existe)
-            sprites.removeIf(sprite -> sprite.getPosition().equals(position));
-
-            // Ajouter le nouveau sprite pour la porte ouverte
-            sprites.add(SpriteFactory.create(layer, doorOpened));
-
-            // 👉 Très important : marquer le décor comme modifié
-            doorOpened.setModified(true);
-        }
-
-        // 2. Remplacer les portes et mettre à jour les sprites
-        for (Position position : positionsToOpen) {
-            DoorNextOpened doorOpened = new DoorNextOpened(position);
-            ((fr.ubx.poo.ubgarden.game.Level)grid).put(position, doorOpened);
-
-            // 🛠 Maintenant : mettre à jour l'affichage (sprites)
-            // Supprimer le sprite existant de la porte fermée
-            sprites.removeIf(sprite -> sprite.getGameObject().getPosition().equals(position));
-
-            // Créer un nouveau sprite pour la porte ouverte
-            sprites.add(SpriteFactory.create(layer, doorOpened));
-            doorOpened.setModified(true);
-        }
-
-        System.out.println("Toutes les carottes ont été ramassées, les portes sont ouvertes !");
     }
-
-
 
 
 
@@ -313,6 +240,53 @@ public final class GameEngine {
         cleanupSprites();
         render();
         statusBar.update(game);
+    }
+
+
+
+
+
+    private void checkLevel() {
+        if (game.isSwitchLevelRequested()) {
+            game.clearSwitchLevel();
+            game.world().setCurrentLevel(game.getSwitchLevel());
+            initialize(); // Reconstruire la scène pour le nouveau niveau
+        }
+    }
+
+    private void removeClosedDoors() {
+        var grid = game.world().getGrid();
+        for (Decor decor : grid.values()) {
+            var bonus = decor.getBonus();
+            if (bonus instanceof DoorNextClose) {
+                System.out.println("Toutes les carottes sont mangées, les portes sont ouvertes !");
+                decor.setBonus(null); // enlever la porte fermée
+
+                decor.setModified(true); // DEMANDER de redessiner ce décor
+            }
+        }
+    }
+
+
+
+
+
+
+
+    private boolean allCarrotsCollected() {
+        return game.world().getGrid().values().stream()
+                .noneMatch(decor -> decor.getBonus() instanceof Carrots);
+    }
+
+    private void rebuildSprites() {
+        for (Sprite sprite : sprites) {
+            if (sprite.getGameObject() instanceof fr.ubx.poo.ubgarden.game.go.bonus.DoorNextClose) {
+                sprite.remove(); // supprimer seulement l'image de la porte fermée
+                cleanUpSprites.add(sprite); // marquer pour suppression
+            }
+        }
+        sprites.removeAll(cleanUpSprites);
+        cleanUpSprites.clear();
     }
 
 

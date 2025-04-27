@@ -86,7 +86,7 @@ public class StatusBar {
         energy.setText(String.valueOf(gardener.getEnergy()));
 
         // Mettre à jour le niveau de maladie
-        diseaseLevel.setText("x" + gardener.getDiseaseLevel());
+        diseaseLevel.setText("x" + gardener.getPoisonedApplesCollected());
 
         // Mettre à jour le nombre d'insecticides
         insecticideNumber.setText(String.valueOf(gardener.getInsecticideNumber()));

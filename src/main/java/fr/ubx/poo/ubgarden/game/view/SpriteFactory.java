@@ -5,10 +5,7 @@
 package fr.ubx.poo.ubgarden.game.view;
 
 import fr.ubx.poo.ubgarden.game.go.GameObject;
-import fr.ubx.poo.ubgarden.game.go.bonus.Carrots;
-import fr.ubx.poo.ubgarden.game.go.bonus.EnergyBoost;
-import fr.ubx.poo.ubgarden.game.go.bonus.Bombe_insecticide;
-import fr.ubx.poo.ubgarden.game.go.bonus.PoisonedApple;
+import fr.ubx.poo.ubgarden.game.go.bonus.*;
 import fr.ubx.poo.ubgarden.game.go.decor.*;
 import fr.ubx.poo.ubgarden.game.go.decor.ground.Grass;
 import javafx.scene.layout.Pane;
@@ -32,10 +29,10 @@ public final class SpriteFactory {
             return new Sprite(layer, factory.get(NESTWASP), gameObject);
         if (gameObject instanceof NestHornet)
             return new Sprite(layer, factory.get(NESTHORNET), gameObject);
-        if (gameObject instanceof DoorNextClosed)
+        if (gameObject instanceof DoorNextClose)
             return new Sprite(layer, factory.get(DOOR_CLOSED), gameObject);
         if (gameObject instanceof DoorNextOpened)
-            return new Sprite(layer, factory.get(DOOR_CLOSED), gameObject);
+            return new Sprite(layer, factory.get(DOOR_OPENED), gameObject);
         if (gameObject instanceof DoorPrevOpened)
             return new Sprite(layer, factory.get(DOOR_OPENED), gameObject);
         if (gameObject instanceof EnergyBoost)

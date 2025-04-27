@@ -14,6 +14,7 @@ import fr.ubx.poo.ubgarden.game.go.WalkVisitor;
 import fr.ubx.poo.ubgarden.game.go.bonus.Bombe_insecticide;
 import fr.ubx.poo.ubgarden.game.go.bonus.Carrots;
 import fr.ubx.poo.ubgarden.game.go.bonus.EnergyBoost;
+import fr.ubx.poo.ubgarden.game.go.bonus.PoisonedApple;
 import fr.ubx.poo.ubgarden.game.go.decor.Decor;
 import fr.ubx.poo.ubgarden.game.go.decor.DoorNextOpened;
 import fr.ubx.poo.ubgarden.game.go.decor.Hedgehog;
@@ -35,11 +36,14 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
     private int insecticideNumber = 0;
     private long poisonedEffectStartTime; // Stocke le moment où l'effet de la pomme commence
     private int poisonedEffectDuration = 5000; // Durée de l'effet en millisecondes (5 secondes)
-    private int energyDrainPerSecond = 10; // Quantité d'énergie drainée par seconde (par défaut)
+    private int energyDrainPerSecond = 0; // Quantité d'énergie drainée par seconde (par défaut)
     private long diseaseStartTime; // Stocke le moment où la maladie commence
     private int diseaseDuration = 5000;
     private long lastMoveTime;
-    private final Timer restTimer = new Timer(1000); // 1 seconde = 1000 ms
+    private final Timer restTimer = new Timer(1000); // 1 seconde = 1000 ms\
+    private long lastPoisonedEffectTime = 0; // Temps de la dernière perte d'énergie
+    private int poisonedApplesCollected = 0;
+
 
 
     public Gardener(Game game, Position position) {
@@ -135,6 +139,15 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
         return nextDecor.walkableBy(this);
     }
 
+    private int carrotsCollected = 0;
+
+    public int getCarrotsCollected() {
+        return carrotsCollected;
+    }
+
+    public void collectCarrot() {
+        carrotsCollected++;
+    }
 
     @Override
     public Position move(Direction direction) {
@@ -145,35 +158,44 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
         if (next != null) {
             if (next instanceof Land) {
                 hurt(2);
-            }
-            else {
+            } else {
                 hurt(1);
             }
         }
 
+        // Déplacer le jardinier
         setPosition(nextPos);
 
-        // 👉 Ajouter ici pour détecter une porte ouverte
+        // Nouveau décor après déplacement
         Decor decor = game.world().getGrid().get(getPosition());
-        if (decor instanceof DoorNextOpened) {
+
+        // 👉 Vérifier si c'est une porte ouverte (attention : utiliser 'decor' et pas 'next')
+        if (decor instanceof fr.ubx.poo.ubgarden.game.go.decor.DoorNextOpened) {
             System.out.println("Porte ouverte, passage au niveau suivant !");
             game.requestSwitchLevel(game.world().currentLevel() + 1);
         }
 
-        // Vérifier si le jardinier a trouvé le hérisson
-        if (next instanceof Hedgehog) {
+        // Vérifier si c'est le hérisson
+        if (decor instanceof fr.ubx.poo.ubgarden.game.go.decor.Hedgehog) {
             System.out.println("Game Won ! Vous avez retrouvé le hérisson !");
-            game.endGame(true); // Terminer la partie en cas de victoire
+            game.endGame(true);
             return nextPos;
         }
 
-        // Interaction avec les bonus
-        if (next != null) {
-            next.pickUpBy(this);
+        // Interaction avec bonus si existant
+        if (decor != null) {
+            decor.pickUpBy(this);
+
+            // 👉 Après ramassage, vérifier s'il restait une carotte
+            if (decor.getBonus() instanceof fr.ubx.poo.ubgarden.game.go.bonus.Carrots) {
+                collectCarrot();
+            }
         }
 
         return nextPos;
     }
+
+
 
     public boolean hasFoundHedgehog() {
         // Récupérer l'entité à la position actuelle du jardinier
@@ -182,27 +204,25 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
     }
 
     public void update(long now) {
-        // Gérer le déplacement s’il a été demandé
         if (moveRequested) {
             if (canMove(direction)) {
                 move(direction);
             }
-            restTimer.start(); // ← ici aussi, si le joueur s'est déplacé
+            restTimer.start();
         }
-
         moveRequested = false;
 
-        updateDiseaseLevel(); // effet des pommes pourries
+        updateDiseaseLevel(); // pour la fatigue par pomme
+        updatePoisonedEffect(); // 👉 pour la perte d'énergie à cause du poison
 
-        // Met à jour le timer d’énergie
         restTimer.update(now);
 
-        // Si le joueur est resté immobile assez longtemps, il regagne de l’énergie
         if (!restTimer.isRunning() && energy < maxEnergy) {
             energy++;
-            restTimer.start(); // On relance le timer pour attendre la prochaine régénération
+            restTimer.start();
         }
     }
+
 
 
     public void hurt(int damage) {
@@ -256,23 +276,27 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
 
 
 
-    public void pickUpBy(Gardener gardener) {
-        System.out.println("Vous avez mangé une pomme empoisonnée ! Vous êtes malade.");
 
-        // Déterminer le multiplicateur en fonction du type de terrain
-        Decor currentDecor = gardener.getCurrentDecor();
-        int effectMultiplier = 1; // Par défaut, effet normal
+    public void pickUp(PoisonedApple poisonedApple) {
+        System.out.println("Vous avez ramassé une pomme empoisonnée !");
 
-        if (currentDecor instanceof Land) {
-            effectMultiplier = 2; // Effet doublé sur la terre
+        applyPoisonedEffect(1);
+        increaseDiseaseLevel(1);
+
+        this.poisonedApplesCollected++; // 🍏 Compter une pomme empoisonnée mangée
+
+        poisonedApple.setDeleted(true);
+        Decor decor = game.world().getGrid().get(getPosition());
+        if (decor != null && decor.getBonus() == poisonedApple) {
+            decor.setBonus(null);
         }
-
-        // Appliquer l'effet de maladie avec le multiplicateur
-        gardener.increaseDiseaseLevel(effectMultiplier);
-
-        setDeleted(true); // Supprimer la pomme empoisonnée après ramassage
-
     }
+    public int getPoisonedApplesCollected() {
+        return poisonedApplesCollected;
+    }
+
+
+
 
     public void increaseDiseaseLevel(int effectMultiplier) {
         // Réduire l'effet de la maladie en fonction du nombre de bombes insecticides
@@ -284,30 +308,33 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
     }
 
     public void applyPoisonedEffect(int effectMultiplier) {
-        this.poisonedEffectStartTime = System.currentTimeMillis(); // Enregistrer le moment où l'effet commence
+        this.poisonedEffectStartTime = System.currentTimeMillis(); // Démarre ou redémarre le poison
+        this.poisonedEffectDuration = 5000; // 5 secondes (remise à 0 à chaque nouvelle pomme)
 
-        // Calculer l'impact sur l'énergie en fonction du multiplicateur et du nombre de bombes insecticides
-        int adjustedEnergyDrain = (energyDrainPerSecond * effectMultiplier) / (insecticideNumber + 1);
+        // 💥 Ajouter 5 points d'énergie drainée à chaque nouvelle pomme
+        this.energyDrainPerSecond += 5;
 
-        System.out.println("Vous êtes affecté par une pomme empoisonnée ! Perte d'énergie : " + adjustedEnergyDrain + " par seconde.");
+        System.out.println("Vous êtes affecté par une pomme empoisonnée ! Perte d'énergie totale : " + energyDrainPerSecond + " par seconde.");
     }
 
+
+
     public void updatePoisonedEffect() {
-        if (System.currentTimeMillis() - poisonedEffectStartTime < poisonedEffectDuration) {
-            // Calculer l'impact sur l'énergie en fonction du multiplicateur et du nombre de bombes insecticides
-            Decor currentDecor = getCurrentDecor();
-            int effectMultiplier = 1; // Par défaut, effet normal
+        long now = System.currentTimeMillis();
 
-            if (currentDecor instanceof Land) {
-                effectMultiplier = 2; // Effet doublé sur la terre
+        if (now - poisonedEffectStartTime < poisonedEffectDuration) {
+            // 💥 Perdre 5 points toutes les 1000ms (1 seconde)
+            if (now - lastPoisonedEffectTime >= 1000) {
+                hurt(energyDrainPerSecond);
+                lastPoisonedEffectTime = now; // Réinitialiser la minuterie
             }
-
-            int adjustedEnergyDrain = (energyDrainPerSecond * effectMultiplier) / (insecticideNumber + 1);
-            hurt(adjustedEnergyDrain); // Réduire l'énergie du Gardener
-        } else {
+        } else if (energyDrainPerSecond != 0) {
+            // Poison terminé une seule fois
+            energyDrainPerSecond = 0;
             System.out.println("L'effet de la pomme empoisonnée a expiré.");
         }
     }
+
 
 
 

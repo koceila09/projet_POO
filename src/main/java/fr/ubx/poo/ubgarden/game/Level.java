@@ -1,9 +1,6 @@
 package fr.ubx.poo.ubgarden.game;
 
-import fr.ubx.poo.ubgarden.game.go.bonus.Carrots;
-import fr.ubx.poo.ubgarden.game.go.bonus.EnergyBoost;
-import fr.ubx.poo.ubgarden.game.go.bonus.Bombe_insecticide;
-import fr.ubx.poo.ubgarden.game.go.bonus.PoisonedApple;
+import fr.ubx.poo.ubgarden.game.go.bonus.*;
 import fr.ubx.poo.ubgarden.game.go.decor.*;
 import fr.ubx.poo.ubgarden.game.go.decor.ground.Grass;
 import fr.ubx.poo.ubgarden.game.launcher.MapEntity;
@@ -11,6 +8,9 @@ import fr.ubx.poo.ubgarden.game.launcher.MapLevel;
 
 import java.util.Collection;
 import java.util.HashMap;
+
+import static fr.ubx.poo.ubgarden.game.launcher.MapEntity.DoorNextClosed;
+import static fr.ubx.poo.ubgarden.game.launcher.MapEntity.DoorNextOpened;
 
 public class Level implements Map {
 
@@ -37,9 +37,14 @@ public class Level implements Map {
                     case Hedgehog:
                         decors.put(position, new Hedgehog(position));
                         break;
-                    case DoorNextClosed:
-                        decors.put(position, new DoorNextClosed(position));
+                    case DoorNextClosed: {
+                        Decor doorOpened = new DoorNextOpened(position); // 1. Créer la porte ouverte
+                        DoorNextClose doorClosed = new DoorNextClose(position, doorOpened); // 2. Créer le bonus porte fermée
+                        doorOpened.setBonus(doorClosed); // 3. Mettre le bonus sur la porte ouverte
+                        decors.put(position, doorOpened); // 4. Mettre la porte ouverte sur la map
                         break;
+                    }
+
                     case DoorPrevOpened:
                         decors.put(position, new DoorPrevOpened(position));
                         break;
@@ -127,6 +132,10 @@ public class Level implements Map {
         int y = position.y();
         return x >= 0 && x < width && y >= 0 && y < height;
     }
+    public java.util.Map<Position, Decor> getDecors() {
+        return decors;
+    }
+
 
 
 
