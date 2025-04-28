@@ -6,6 +6,7 @@ import fr.ubx.poo.ubgarden.game.go.personage.Wasps;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 import fr.ubx.poo.ubgarden.game.go.personage.Wasps;
 import java.util.stream.Collectors;
@@ -36,13 +37,14 @@ public class Game {
         this.hornetPositions = hornetPositions; // Initialisation correcte
 
         // Initialiser les listes de guêpes et de frelons
-        this.wasps = waspPositions.stream()
+        this.wasps = new ArrayList<>(waspPositions.stream()
                 .map(pos -> new Wasps(this, pos))
-                .toList();
+                .toList());
 
-        this.hornets = hornetPositions.stream()
+        this.hornets = new ArrayList<>(hornetPositions.stream()
                 .map(pos -> new Hornets(this, pos))
-                .toList();
+                .toList());
+
     }
 
     private boolean gameOver = false;

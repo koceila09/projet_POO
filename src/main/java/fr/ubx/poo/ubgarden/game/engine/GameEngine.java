@@ -2,6 +2,7 @@ package fr.ubx.poo.ubgarden.game.engine;
 
 import fr.ubx.poo.ubgarden.game.Direction;
 import fr.ubx.poo.ubgarden.game.Game;
+import fr.ubx.poo.ubgarden.game.Position;
 import fr.ubx.poo.ubgarden.game.go.bonus.Carrots;
 import fr.ubx.poo.ubgarden.game.go.bonus.DoorNextClose;
 import fr.ubx.poo.ubgarden.game.go.decor.Decor;
@@ -32,6 +33,8 @@ public final class GameEngine {
     private final List<Hornets> hornets; // Liste des frelons
     private final List<Sprite> sprites = new LinkedList<>();
     private final Set<Sprite> cleanUpSprites = new HashSet<>();
+    // Ajoute en haut dans les attributs privés
+    private final Map<Position, Timer> nestWaspTimers = new HashMap<>();
 
     private final Scene scene;
 
@@ -90,6 +93,13 @@ public final class GameEngine {
                 bonus.setModified(true);
             }
         }
+        // Après avoir créé les sprites pour les décors et les bonus
+        for (Decor decor : game.world().getGrid().values()) {
+            if (decor instanceof fr.ubx.poo.ubgarden.game.go.decor.NestWasp) {
+                nestWaspTimers.put(decor.getPosition(), new Timer(5000)); // 5 secondes
+            }
+        }
+
 
         // Ajouter un sprite pour le jardinier
         sprites.add(new SpriteGardener(layer, gardener));
@@ -194,6 +204,84 @@ public final class GameEngine {
                 showMessage("Game Over", Color.RED);
             }
         }
+        for (Map.Entry<Position, Timer> entry : nestWaspTimers.entrySet()) {
+            Position nestPos = entry.getKey();
+            Timer timer = entry.getValue();
+            timer.update(now);
+
+            if (!timer.isRunning()) {
+                List<Position> possiblePositions = new ArrayList<>();
+
+                // Chercher autour du nid (haut, bas, gauche, droite)
+                Position up = new Position(nestPos.level(), nestPos.x(), nestPos.y() - 1);
+                Position down = new Position(nestPos.level(), nestPos.x(), nestPos.y() + 1);
+                Position left = new Position(nestPos.level(), nestPos.x() - 1, nestPos.y());
+                Position right = new Position(nestPos.level(), nestPos.x() + 1, nestPos.y());
+
+                List<Position> neighbors = Arrays.asList(up, down, left, right);
+
+                for (Position pos : neighbors) {
+                    if (game.world().getGrid().inside(pos)) {
+                        var decor = game.world().getGrid().get(pos);
+
+                        // Vérifier que c'est du Grass
+                        boolean isGrass = decor instanceof fr.ubx.poo.ubgarden.game.go.decor.ground.Grass;
+
+                        // Vérifier qu'il n'y a PAS déjà une guêpe à cet endroit
+                        boolean noWasp = wasps.stream().noneMatch(wasp -> wasp.getPosition().equals(pos));
+
+                        if (isGrass && noWasp) {
+                            possiblePositions.add(pos);
+                        }
+                    }
+                }
+
+                if (!possiblePositions.isEmpty()) {
+                    Random random = new Random();
+                    Position spawnPos = possiblePositions.get(random.nextInt(possiblePositions.size()));
+
+                    Wasps newWasp = new Wasps(game, spawnPos);
+                    wasps.add(newWasp);
+                    sprites.add(new SpriteWasp(layer, newWasp));
+                }
+
+                timer.start(); // Redémarrer le timer
+            }
+        }
+        Random random = new Random();
+        for (Wasps wasp : wasps) {
+            if (wasp.isDeleted())
+                continue; // Si la guêpe est morte, on ne la déplace pas
+
+            // Décider aléatoirement horizontal ou vertical
+            boolean moveHorizontal = random.nextBoolean();
+
+            Direction[] possibleDirections;
+            if (moveHorizontal) {
+                possibleDirections = new Direction[]{Direction.LEFT, Direction.RIGHT};
+            } else {
+                possibleDirections = new Direction[]{Direction.UP, Direction.DOWN};
+            }
+
+            Direction randomDirection = possibleDirections[random.nextInt(possibleDirections.length)];
+            Position nextPos = randomDirection.nextPosition(wasp.getPosition());
+
+            if (game.world().getGrid().inside(nextPos)) {
+                var decor = game.world().getGrid().get(nextPos);
+
+                boolean isGrass = decor instanceof fr.ubx.poo.ubgarden.game.go.decor.ground.Grass;
+                boolean noWaspThere = wasps.stream().noneMatch(w -> w != wasp && w.getPosition().equals(nextPos));
+
+                if (isGrass && noWaspThere) {
+                    wasp.setPosition(nextPos);
+                    wasp.setModified(true); // 🔥 Ajout obligatoire pour que le visuel soit mis à jour
+                }
+            }
+        }
+
+
+
+
     }
 
 
