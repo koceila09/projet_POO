@@ -68,7 +68,7 @@ public class GameLauncherView extends BorderPane {
 
 
         defaultItem.setOnAction(e -> {
-            File file = new File("src/main/resources/maps/level1.txt");
+            File file = new File("world/world_3level_clear.properties");
             Game game = GameLauncher.getInstance().load(file);
             GameEngine engine = new GameEngine(game, stage.getScene());
             this.setCenter(engine.getRoot());

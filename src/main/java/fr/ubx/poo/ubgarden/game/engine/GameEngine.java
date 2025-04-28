@@ -7,6 +7,7 @@ import fr.ubx.poo.ubgarden.game.go.bonus.Carrots;
 import fr.ubx.poo.ubgarden.game.go.bonus.DoorNextClose;
 import fr.ubx.poo.ubgarden.game.go.decor.Decor;
 import fr.ubx.poo.ubgarden.game.go.decor.DoorNextOpened;
+import fr.ubx.poo.ubgarden.game.go.decor.DoorPrevOpened;
 import fr.ubx.poo.ubgarden.game.go.personage.Gardener;
 import fr.ubx.poo.ubgarden.game.go.personage.Hornets;
 import fr.ubx.poo.ubgarden.game.go.personage.Wasps;
@@ -336,11 +337,37 @@ public final class GameEngine {
 
     private void checkLevel() {
         if (game.isSwitchLevelRequested()) {
-            game.clearSwitchLevel();
             game.world().setCurrentLevel(game.getSwitchLevel());
-            initialize(); // Reconstruire la scène pour le nouveau niveau
+            System.out.println("Changement de niveau vers " + game.getSwitchLevel());
+
+            // Nettoyer
+            sprites.clear();
+            cleanUpSprites.clear();
+            layer.getChildren().clear();
+
+            for (var decor : game.world().getGrid().values()){
+                if (decor instanceof DoorPrevOpened){
+                    gardener.setPosition(decor.getPosition());
+                    break;
+                }
+                else {
+                    for (var decor2 : game.world().getGrid().values()) {
+                        if (decor2 instanceof DoorNextOpened) {
+                            gardener.setPosition(decor2.getPosition());
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Mise à jour du monde
+            game.clearSwitchLevel();
+            initialize(); // Recharge les décors et les sprites
         }
     }
+
+
+
 
     private void removeClosedDoors() {
         var grid = game.world().getGrid();

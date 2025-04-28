@@ -15,10 +15,7 @@ import fr.ubx.poo.ubgarden.game.go.bonus.Bombe_insecticide;
 import fr.ubx.poo.ubgarden.game.go.bonus.Carrots;
 import fr.ubx.poo.ubgarden.game.go.bonus.EnergyBoost;
 import fr.ubx.poo.ubgarden.game.go.bonus.PoisonedApple;
-import fr.ubx.poo.ubgarden.game.go.decor.Decor;
-import fr.ubx.poo.ubgarden.game.go.decor.DoorNextOpened;
-import fr.ubx.poo.ubgarden.game.go.decor.Hedgehog;
-import fr.ubx.poo.ubgarden.game.go.decor.Land;
+import fr.ubx.poo.ubgarden.game.go.decor.*;
 import fr.ubx.poo.ubgarden.game.launcher.MapEntity;
 
 import javafx.scene.paint.Color;
@@ -170,9 +167,13 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
         Decor decor = game.world().getGrid().get(getPosition());
 
         // 👉 Vérifier si c'est une porte ouverte (attention : utiliser 'decor' et pas 'next')
-        if (decor instanceof fr.ubx.poo.ubgarden.game.go.decor.DoorNextOpened) {
+        if (decor instanceof DoorNextOpened) {
             System.out.println("Porte ouverte, passage au niveau suivant !");
             game.requestSwitchLevel(game.world().currentLevel() + 1);
+        }
+        if (decor instanceof DoorPrevOpened) {
+            System.out.println("Porte ouverte, passage au niveau suivant !");
+            game.requestSwitchLevel(game.world().currentLevel() -1 );
         }
 
         // Vérifier si c'est le hérisson

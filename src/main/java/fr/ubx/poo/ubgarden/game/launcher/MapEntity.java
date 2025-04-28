@@ -11,6 +11,7 @@ public enum MapEntity {
     Bombe('K'),
     NestWasp('n'),
 
+
     Gardener('P'),
     Wasps('W'),
 

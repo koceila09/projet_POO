@@ -16,6 +16,7 @@ public class Level implements Map {
 
     private final int level;
     private final int width;
+    private Position gardenerPosition;
 
     private final int height;
 
@@ -136,6 +137,10 @@ public class Level implements Map {
         return decors;
     }
 
+
+    public Position getGardenerPosition() {
+        return gardenerPosition;
+    }
 
 
 
