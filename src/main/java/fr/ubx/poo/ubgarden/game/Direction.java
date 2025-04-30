@@ -35,15 +35,27 @@ public enum Direction {
 
     private static final Random randomGenerator = new Random();
 
-    public static Direction random() {
-        int i = randomGenerator.nextInt(values().length);
-        return values()[i];
-    }
+
 
     public abstract Position nextPosition(Position pos, int delta);
 
     public Position nextPosition(Position pos) {
         return nextPosition(pos, 1);
     }
+
+    public Direction opposite() {
+        return switch (this) {
+            case UP -> DOWN;
+            case DOWN -> UP;
+            case LEFT -> RIGHT;
+            case RIGHT -> LEFT;
+        };
+    }
+
+    public static Direction random() {
+        Direction[] values = values();
+        return values[(int)(Math.random() * values.length)];
+    }
+
 
 }

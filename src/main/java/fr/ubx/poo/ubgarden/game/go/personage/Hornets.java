@@ -15,7 +15,6 @@ import fr.ubx.poo.ubgarden.game.go.decor.Decor;
 
 public class Hornets extends GameObject implements Movable, PickupVisitor, WalkVisitor {
 
-    private Position position;
     private Direction direction;
     private boolean moveRequested = false;
     private int health = 1;
@@ -24,11 +23,7 @@ public class Hornets extends GameObject implements Movable, PickupVisitor, WalkV
 
         super(game, position);
         this.direction = Direction.DOWN;
-        this.position = position;
 
-    }
-    public Position getPosition() {
-        return position; // Renvoie la position actuelle
     }
 
 
@@ -89,11 +84,14 @@ public class Hornets extends GameObject implements Movable, PickupVisitor, WalkV
     // Réinitialiser collisionHandled quand Hornet bouge
     public void update(long now) {
         collisionHandled = false;
-        if (moveRequested) {
-            if (canMove(direction)) {
-                move(direction);
-            }
+
+        if (canMove(direction)) {
+            requestMove(direction);
+            move(direction);
+        } else {
+            direction = direction.opposite();
         }
+
         moveRequested = false;
     }
 

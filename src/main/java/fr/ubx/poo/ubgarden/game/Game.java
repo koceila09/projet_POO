@@ -1,5 +1,6 @@
 package fr.ubx.poo.ubgarden.game;
 
+import fr.ubx.poo.ubgarden.game.engine.GameEngine;
 import fr.ubx.poo.ubgarden.game.go.personage.Gardener;
 import fr.ubx.poo.ubgarden.game.go.personage.Hornets;
 import fr.ubx.poo.ubgarden.game.go.personage.Wasps;
@@ -151,6 +152,16 @@ public class Game {
 
     public void setDoorsOpened(boolean opened) {
         this.doorsOpened = opened;
+    }
+
+    private GameEngine engine;
+
+    public GameEngine getGameEngine() {
+        return engine;
+    }
+
+    public void setGameEngine(GameEngine engine) {
+        this.engine = engine;
     }
 
 

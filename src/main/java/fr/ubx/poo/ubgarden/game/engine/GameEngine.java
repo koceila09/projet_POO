@@ -36,6 +36,8 @@ public final class GameEngine {
     private final Set<Sprite> cleanUpSprites = new HashSet<>();
     // Ajoute en haut dans les attributs privés
     private final Map<Position, Timer> nestWaspTimers = new HashMap<>();
+    private final Timer hornetTimer;
+
 
     private final Scene scene;
 
@@ -49,17 +51,28 @@ public final class GameEngine {
 
     public GameEngine(Game game, Scene scene) {
         this.game = game;
+
         this.scene = scene;
         this.gardener = game.getGardener();
+        game.setGameEngine(this);
 
         // Initialiser la liste de guêpes
         this.wasps = game.getWasps();     // ⚠️ correction ici
         this.hornets = game.getHornets();
 
+        this.hornetTimer = new Timer(game.configuration().hornetMoveFrequency() * 1000); // ✅ ici
 
         initialize();
         buildAndSetGameLoop();
     }
+    public Pane getLayer() {
+        return layer;
+    }
+    public void addSprite(Sprite sprite) {
+        sprites.add(sprite);
+    }
+
+
 
     public Pane getRoot() {
         return rootPane;
@@ -195,16 +208,15 @@ public final class GameEngine {
         }
 
 
+
         game.checkGameState(gardener);
 
         if (game.isGameOver()) {
             gameLoop.stop();
-            if (game.isGameWon()) {
-                showMessage("Game Won!", Color.GREEN);
-            } else {
-                showMessage("Game Over", Color.RED);
-            }
+            showMessage(game.isGameWon() ? "Game Won!" : "Game Over", game.isGameWon() ? Color.GREEN : Color.RED);
+            return;
         }
+
         for (Map.Entry<Position, Timer> entry : nestWaspTimers.entrySet()) {
             Position nestPos = entry.getKey();
             Timer timer = entry.getValue();
@@ -213,26 +225,14 @@ public final class GameEngine {
             if (!timer.isRunning()) {
                 List<Position> possiblePositions = new ArrayList<>();
 
-                // Chercher autour du nid (haut, bas, gauche, droite)
-                Position up = new Position(nestPos.level(), nestPos.x(), nestPos.y() - 1);
-                Position down = new Position(nestPos.level(), nestPos.x(), nestPos.y() + 1);
-                Position left = new Position(nestPos.level(), nestPos.x() - 1, nestPos.y());
-                Position right = new Position(nestPos.level(), nestPos.x() + 1, nestPos.y());
-
-                List<Position> neighbors = Arrays.asList(up, down, left, right);
-
-                for (Position pos : neighbors) {
-                    if (game.world().getGrid().inside(pos)) {
-                        var decor = game.world().getGrid().get(pos);
-
-                        // Vérifier que c'est du Grass
+                for (Direction dir : Direction.values()) {
+                    Position candidate = dir.nextPosition(nestPos);
+                    if (game.world().getGrid().inside(candidate)) {
+                        Decor decor = game.world().getGrid().get(candidate);
                         boolean isGrass = decor instanceof fr.ubx.poo.ubgarden.game.go.decor.ground.Grass;
-
-                        // Vérifier qu'il n'y a PAS déjà une guêpe à cet endroit
-                        boolean noWasp = wasps.stream().noneMatch(wasp -> wasp.getPosition().equals(pos));
-
+                        boolean noWasp = wasps.stream().noneMatch(w -> w.getPosition().equals(candidate));
                         if (isGrass && noWasp) {
-                            possiblePositions.add(pos);
+                            possiblePositions.add(candidate);
                         }
                     }
                 }
@@ -241,50 +241,62 @@ public final class GameEngine {
                     Random random = new Random();
                     Position spawnPos = possiblePositions.get(random.nextInt(possiblePositions.size()));
 
+                    // Créer la guêpe
                     Wasps newWasp = new Wasps(game, spawnPos);
                     wasps.add(newWasp);
                     sprites.add(new SpriteWasp(layer, newWasp));
+
+                    // Chercher une case autour pour la bombe
+                    List<Position> bombPositions = new ArrayList<>();
+                    for (Direction dir : Direction.values()) {
+                        Position bombPos = dir.nextPosition(spawnPos);
+                        if (game.world().getGrid().inside(bombPos)) {
+                            Decor bombDecor = game.world().getGrid().get(bombPos);
+                            if (bombDecor instanceof fr.ubx.poo.ubgarden.game.go.decor.ground.Grass &&
+                                    bombDecor.getBonus() == null) {
+                                bombPositions.add(bombPos);
+                            }
+                        }
+                    }
+
+                    if (!bombPositions.isEmpty()) {
+                        Position selected = bombPositions.get(random.nextInt(bombPositions.size()));
+                        Decor target = game.world().getGrid().get(selected);
+                        var bomb = new fr.ubx.poo.ubgarden.game.go.bonus.Bombe_insecticide(selected, target);
+                        target.setBonus(bomb);
+                        bomb.setModified(true);
+                        sprites.add(SpriteFactory.create(layer, bomb));
+                    }
                 }
 
-                timer.start(); // Redémarrer le timer
+                timer.start();
             }
         }
-        Random random = new Random();
+
         for (Wasps wasp : wasps) {
-            if (wasp.isDeleted())
-                continue; // Si la guêpe est morte, on ne la déplace pas
-
-            // Décider aléatoirement horizontal ou vertical
-            boolean moveHorizontal = random.nextBoolean();
-
-            Direction[] possibleDirections;
-            if (moveHorizontal) {
-                possibleDirections = new Direction[]{Direction.LEFT, Direction.RIGHT};
-            } else {
-                possibleDirections = new Direction[]{Direction.UP, Direction.DOWN};
-            }
-
-            Direction randomDirection = possibleDirections[random.nextInt(possibleDirections.length)];
-            Position nextPos = randomDirection.nextPosition(wasp.getPosition());
-
-            if (game.world().getGrid().inside(nextPos)) {
-                var decor = game.world().getGrid().get(nextPos);
-
-                boolean isGrass = decor instanceof fr.ubx.poo.ubgarden.game.go.decor.ground.Grass;
-                boolean noWaspThere = wasps.stream().noneMatch(w -> w != wasp && w.getPosition().equals(nextPos));
-
-                if (isGrass && noWaspThere) {
-                    wasp.setPosition(nextPos);
-                    wasp.setModified(true); // 🔥 Ajout obligatoire pour que le visuel soit mis à jour
-                }
+            if (!wasp.isDeleted()) {
+                wasp.update(now);
             }
         }
 
+        hornetTimer.update(now);
+        if (!hornetTimer.isRunning()) {
+            for (Hornets hornet : hornets) {
+                if (hornet.isDeleted()) continue;
+                hornet.update(now);
+            }
+            hornetTimer.start();
+        }
+
+        for (Wasps wasp : wasps) {
+            if (!wasp.isDeleted()) {
+                wasp.update(now);
+            }
+        }
 
 
 
     }
-
 
 
 
