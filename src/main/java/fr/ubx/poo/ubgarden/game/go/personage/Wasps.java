@@ -34,6 +34,58 @@ public class Wasps extends GameObject implements Movable, PickupVisitor, WalkVis
         // 1 pas par seconde
     }
 
+
+
+
+    @Override
+    public boolean canMove(Direction direction) {
+        Position nextPos = direction.nextPosition(getPosition());
+        if (!game.world().getGrid().inside(nextPos))
+            return false;
+        Decor decor = game.world().getGrid().get(nextPos);
+        return (decor == null || decor instanceof fr.ubx.poo.ubgarden.game.go.decor.ground.Grass);
+    }
+
+    @Override
+    public Position move(Direction direction) {
+        if (canMove(direction)) {
+            Position nextPos = direction.nextPosition(getPosition());
+            setPosition(nextPos);
+            // pas besoin de setModified ici si pas de changement de direction
+        }
+        return getPosition();
+
+    }
+
+    public void interactWith(Gardener gardener) {
+        if (!collisionHandled && !isDeleted()) {
+            System.out.println("Le jardinier a été piqué par une guêpe !");
+            gardener.hurt(20);
+            health--;
+            collisionHandled = true;
+            if (health <= 0) {
+                System.out.println("La guêpe est morte !");
+                setDeleted(true);
+            }
+        }
+    }
+
+    public Direction getDirection() {
+        return direction;
+    }
+
+    private void die() {
+        setDeleted(false);
+    }
+    private GameEngine engine;
+
+    public void setGameEngine(GameEngine engine) {
+        this.engine = engine;
+    }
+
+    public GameEngine getGameEngine() {
+        return engine;
+    }
     @Override
     public void update(long now) {
         collisionHandled = false;
@@ -97,57 +149,6 @@ public class Wasps extends GameObject implements Movable, PickupVisitor, WalkVis
 
             moveTimer.start();
         }
-    }
-
-
-    @Override
-    public boolean canMove(Direction direction) {
-        Position nextPos = direction.nextPosition(getPosition());
-        if (!game.world().getGrid().inside(nextPos))
-            return false;
-        Decor decor = game.world().getGrid().get(nextPos);
-        return (decor == null || decor instanceof fr.ubx.poo.ubgarden.game.go.decor.ground.Grass);
-    }
-
-    @Override
-    public Position move(Direction direction) {
-        if (canMove(direction)) {
-            Position nextPos = direction.nextPosition(getPosition());
-            setPosition(nextPos);
-            // pas besoin de setModified ici si pas de changement de direction
-        }
-        return getPosition();
-
-    }
-
-    public void interactWith(Gardener gardener) {
-        if (!collisionHandled && !isDeleted()) {
-            System.out.println("Le jardinier a été piqué par une guêpe !");
-            gardener.hurt(20);
-            health--;
-            collisionHandled = true;
-            if (health <= 0) {
-                System.out.println("La guêpe est morte !");
-                setDeleted(true);
-            }
-        }
-    }
-
-    public Direction getDirection() {
-        return direction;
-    }
-
-    private void die() {
-        setDeleted(false);
-    }
-    private GameEngine engine;
-
-    public void setGameEngine(GameEngine engine) {
-        this.engine = engine;
-    }
-
-    public GameEngine getGameEngine() {
-        return engine;
     }
 
 }

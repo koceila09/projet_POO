@@ -9,9 +9,6 @@ import fr.ubx.poo.ubgarden.game.launcher.MapLevel;
 import java.util.Collection;
 import java.util.HashMap;
 
-import static fr.ubx.poo.ubgarden.game.launcher.MapEntity.DoorNextClosed;
-import static fr.ubx.poo.ubgarden.game.launcher.MapEntity.DoorNextOpened;
-
 public class Level implements Map {
 
     private final int level;
@@ -39,10 +36,11 @@ public class Level implements Map {
                         decors.put(position, new Hedgehog(position));
                         break;
                     case DoorNextClosed: {
-                        Decor doorOpened = new DoorNextOpened(position); // 1. Créer la porte ouverte
-                        DoorNextClose doorClosed = new DoorNextClose(position, doorOpened); // 2. Créer le bonus porte fermée
-                        doorOpened.setBonus(doorClosed); // 3. Mettre le bonus sur la porte ouverte
-                        decors.put(position, doorOpened); // 4. Mettre la porte ouverte sur la map
+                         // 1. Créer la porte ouverte
+                        DoorNextClose doorClosed = new DoorNextClose(position); // 2. Créer le bonus porte fermée
+                        // 3. Mettre le bonus sur la porte ouverte
+                        decors.put(position, doorClosed);
+
                         break;
                     }
 
@@ -141,6 +139,19 @@ public class Level implements Map {
     public Position getGardenerPosition() {
         return gardenerPosition;
     }
+    public void removeClosedDoors() {
+
+        for (Decor decor : values()) {
+            if (decor instanceof DoorNextClose) {
+                System.out.println("Toutes les carottes sont mangées, les portes sont ouvertes !");
+                decor.remove();
+                decors.put(decor.getPosition(), new DoorNextOpened(decor.getPosition()));
+            }
+        }
+    }
+
+
+
 
 
 

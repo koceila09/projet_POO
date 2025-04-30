@@ -4,7 +4,7 @@ import fr.ubx.poo.ubgarden.game.Direction;
 import fr.ubx.poo.ubgarden.game.Game;
 import fr.ubx.poo.ubgarden.game.Position;
 import fr.ubx.poo.ubgarden.game.go.bonus.Carrots;
-import fr.ubx.poo.ubgarden.game.go.bonus.DoorNextClose;
+import fr.ubx.poo.ubgarden.game.go.decor.DoorNextClose;
 import fr.ubx.poo.ubgarden.game.go.decor.Decor;
 import fr.ubx.poo.ubgarden.game.go.decor.DoorNextOpened;
 import fr.ubx.poo.ubgarden.game.go.decor.DoorPrevOpened;
@@ -34,15 +34,14 @@ public final class GameEngine {
     private final List<Hornets> hornets; // Liste des frelons
     private final List<Sprite> sprites = new LinkedList<>();
     private final Set<Sprite> cleanUpSprites = new HashSet<>();
-    // Ajoute en haut dans les attributs privés
+
     private final Map<Position, Timer> nestWaspTimers = new HashMap<>();
+    private final Map<Position, Timer> nestHornetTimers = new HashMap<>();
     private final Timer hornetTimer;
 
 
     private final Scene scene;
-
     private StatusBar statusBar;
-
     private final Pane rootPane = new Pane();
     private final Group root = new Group();
     private final Pane layer = new Pane();
@@ -51,7 +50,6 @@ public final class GameEngine {
 
     public GameEngine(Game game, Scene scene) {
         this.game = game;
-
         this.scene = scene;
         this.gardener = game.getGardener();
         game.setGameEngine(this);
@@ -71,9 +69,6 @@ public final class GameEngine {
     public void addSprite(Sprite sprite) {
         sprites.add(sprite);
     }
-
-
-
     public Pane getRoot() {
         return rootPane;
     }
@@ -113,8 +108,12 @@ public final class GameEngine {
                 nestWaspTimers.put(decor.getPosition(), new Timer(5000)); // 5 secondes
             }
         }
-
-
+        // Après avoir créé les sprites pour les décors et les bonus
+        for (Decor decor : game.world().getGrid().values()) {
+            if (decor instanceof fr.ubx.poo.ubgarden.game.go.decor.NestHornet) {
+                nestWaspTimers.put(decor.getPosition(), new Timer(5000)); // 5 secondes
+            }
+        }
         // Ajouter un sprite pour le jardinier
         sprites.add(new SpriteGardener(layer, gardener));
 
@@ -203,14 +202,17 @@ public final class GameEngine {
         gardener.update(now);
 
         if (allCarrotsCollected()) {
-            removeClosedDoors();
-            rebuildSprites();
+            game.world().getGrid().removeClosedDoors();
+            rebuildSprites(); // Supprime les anciennes portes fermées
+
+            // 🔥 Recrée les sprites pour les nouvelles portes ouvertes
+            sprites.addAll(game.world().getGrid().values().stream()
+                    .filter(decor -> decor instanceof fr.ubx.poo.ubgarden.game.go.decor.DoorNextOpened)
+                    .map(decor -> SpriteFactory.create(layer, decor))
+                    .toList());
         }
 
-
-
         game.checkGameState(gardener);
-
         if (game.isGameOver()) {
             gameLoop.stop();
             showMessage(game.isGameWon() ? "Game Won!" : "Game Over", game.isGameWon() ? Color.GREEN : Color.RED);
@@ -272,12 +274,73 @@ public final class GameEngine {
                 timer.start();
             }
         }
+        for (Map.Entry<Position, Timer> entry : nestHornetTimers.entrySet()) {
+            Position nestPos = entry.getKey();
+            Timer timer = entry.getValue();
+            timer.update(now);
+
+            if (!timer.isRunning()) {
+                List<Position> possiblePositions = new ArrayList<>();
+
+                for (Direction dir : Direction.values()) {
+                    Position candidate = dir.nextPosition(nestPos);
+                    if (game.world().getGrid().inside(candidate)) {
+                        Decor decor = game.world().getGrid().get(candidate);
+                        boolean isGrass = decor instanceof fr.ubx.poo.ubgarden.game.go.decor.ground.Grass;
+                        boolean noWasp = wasps.stream().noneMatch(w -> w.getPosition().equals(candidate));
+                        if (isGrass && noWasp) {
+                            possiblePositions.add(candidate);
+                        }
+                    }
+                }
+
+                if (!possiblePositions.isEmpty()) {
+                    Random random = new Random();
+                    Position spawnPos = possiblePositions.get(random.nextInt(possiblePositions.size()));
+
+                    // Créer la guêpe
+                    Hornets newHornet = new Hornets(game, spawnPos);
+                    hornets.add(newHornet);
+                    sprites.add(new SpriteHornet(layer, newHornet));
+
+                    // Chercher une case autour pour la bombe
+                    List<Position> bombPositions = new ArrayList<>();
+                    for (Direction dir : Direction.values()) {
+                        Position bombPos = dir.nextPosition(spawnPos);
+                        if (game.world().getGrid().inside(bombPos)) {
+                            Decor bombDecor = game.world().getGrid().get(bombPos);
+                            if (bombDecor instanceof fr.ubx.poo.ubgarden.game.go.decor.ground.Grass &&
+                                    bombDecor.getBonus() == null) {
+                                bombPositions.add(bombPos);
+                            }
+                        }
+                    }
+
+                    if (!bombPositions.isEmpty()) {
+                        Position selected = bombPositions.get(random.nextInt(bombPositions.size()));
+                        Decor target = game.world().getGrid().get(selected);
+                        var bomb = new fr.ubx.poo.ubgarden.game.go.bonus.Bombe_insecticide(selected, target);
+                        target.setBonus(bomb);
+                        bomb.setModified(true);
+                        sprites.add(SpriteFactory.create(layer, bomb));
+                    }
+                }
+
+                timer.start();
+            }
+        }
 
         for (Wasps wasp : wasps) {
             if (!wasp.isDeleted()) {
                 wasp.update(now);
             }
         }
+        for (Hornets hornet : hornets) {
+            if (!hornet.isDeleted()) {
+                hornet.update(now);
+            }
+        }
+
 
         hornetTimer.update(now);
         if (!hornetTimer.isRunning()) {
@@ -287,12 +350,16 @@ public final class GameEngine {
             }
             hornetTimer.start();
         }
-
-        for (Wasps wasp : wasps) {
-            if (!wasp.isDeleted()) {
-                wasp.update(now);
+        hornetTimer.update(now);
+        if (!hornetTimer.isRunning()) {
+            for (Hornets hornet : hornets) {
+                if (hornet.isDeleted()) continue;
+                hornet.update(now);
             }
+            hornetTimer.start();
         }
+
+
 
 
 
@@ -315,11 +382,9 @@ public final class GameEngine {
 
 
     private void render() {
-        sprites.forEach(Sprite::updateImage); // ← mise à jour d'image ou suppression si deleted
+        sprites.forEach(Sprite::updateImage);
         sprites.forEach(Sprite::render);
     }
-
-
     public void start() {
         gameLoop.start();
     }
@@ -334,7 +399,7 @@ public final class GameEngine {
         checkLevel();
         processInput();
 
-        gardener.update(now); // ⬅️ AJOUT ICI
+        gardener.update(now);
 
         update(now);
         checkCollision();
@@ -349,6 +414,7 @@ public final class GameEngine {
 
     private void checkLevel() {
         if (game.isSwitchLevelRequested()) {
+            int currentLevel = game.world().currentLevel();
             game.world().setCurrentLevel(game.getSwitchLevel());
             System.out.println("Changement de niveau vers " + game.getSwitchLevel());
 
@@ -358,7 +424,7 @@ public final class GameEngine {
             layer.getChildren().clear();
 
             for (var decor : game.world().getGrid().values()){
-                if (decor instanceof DoorPrevOpened){
+                if (decor instanceof DoorPrevOpened && game.getSwitchLevel() > currentLevel) {
                     gardener.setPosition(decor.getPosition());
                     break;
                 }
@@ -381,18 +447,7 @@ public final class GameEngine {
 
 
 
-    private void removeClosedDoors() {
-        var grid = game.world().getGrid();
-        for (Decor decor : grid.values()) {
-            var bonus = decor.getBonus();
-            if (bonus instanceof DoorNextClose) {
-                System.out.println("Toutes les carottes sont mangées, les portes sont ouvertes !");
-                decor.setBonus(null); // enlever la porte fermée
 
-                decor.setModified(true); // DEMANDER de redessiner ce décor
-            }
-        }
-    }
 
 
 
@@ -407,7 +462,7 @@ public final class GameEngine {
 
     private void rebuildSprites() {
         for (Sprite sprite : sprites) {
-            if (sprite.getGameObject() instanceof fr.ubx.poo.ubgarden.game.go.bonus.DoorNextClose) {
+            if (sprite.getGameObject() instanceof DoorNextClose) {
                 sprite.remove(); // supprimer seulement l'image de la porte fermée
                 cleanUpSprites.add(sprite); // marquer pour suppression
             }
