@@ -15,8 +15,6 @@ public class Carrots extends Bonus {
         super.remove();
     }
 
-
-
     @Override
     public void pickUpBy(Gardener gardener) {
         System.out.println("Vous avez ramassé une pomme ! Votre énergie augmente.");
