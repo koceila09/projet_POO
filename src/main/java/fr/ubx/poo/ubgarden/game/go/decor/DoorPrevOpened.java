@@ -18,7 +18,6 @@ public class DoorPrevOpened extends Decor {
         return 0;
     }
 
-
     @Override
     public int energyConsumptionWalk() {
         return super.energyConsumptionWalk();

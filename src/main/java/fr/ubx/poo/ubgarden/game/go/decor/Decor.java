@@ -45,6 +45,7 @@ public abstract class Decor extends GameObject implements Walkable, Pickupable {
             setBonus(null); // Supprimer le bonus après ramassage
         }
     }
+
     public void clearBonus() {
         this.bonus = null;
         setModified(true); // pour redessiner la case sans bonus

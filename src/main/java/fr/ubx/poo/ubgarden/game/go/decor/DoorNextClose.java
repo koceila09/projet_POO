@@ -12,11 +12,11 @@ public class DoorNextClose extends Decor {
     public int energyConsumptionWalk() {
         return super.energyConsumptionWalk();
     }
+
     @Override
     public boolean walkableBy(Gardener gardener) {
         return gardener.canWalkOn(this);
     }
-
 
     @Override
     public int getMoveCost() {

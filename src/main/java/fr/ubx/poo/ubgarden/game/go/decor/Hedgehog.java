@@ -13,15 +13,10 @@ public class Hedgehog extends Decor {
         super(position);
     }
 
-    public Hedgehog(Position position, Bonus bonus) {
-        super(position, bonus);
-    }
-
     @Override
     public int getMoveCost() {
         return 0;
     }
-
 
     @Override
     public int energyConsumptionWalk() {
