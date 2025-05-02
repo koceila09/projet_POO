@@ -48,33 +48,4 @@ public class MapLevel {
                 }
         return gardenerPosition;
     }
-    public Position getwaspPosition() {
-        for (int i = 0; i < width; i++)
-            for (int j = 0; j < height; j++)
-                if (grid[j][i] == Wasps) {
-                    if (waspPosition != null)
-                        throw new RuntimeException("Multiple definition of wasp");
-                    set(i, j, Grass);
-                    // Gardener can be only on level 1
-                    waspPosition = new Position(1, i, j);
-                }
-        return waspPosition;
-    }
-
-    public Position gethornetPosition() {
-        for (int i = 0; i < width; i++)
-            for (int j = 0; j < height; j++)
-                if (grid[j][i] == Hornets) {
-                    if (hornetPosition != null)
-                        throw new RuntimeException("Multiple definition of hornet");
-                    set(i, j, Grass);
-                    // Gardener can be only on level 1
-                    hornetPosition = new Position(1, i, j);
-                }
-        return hornetPosition;
-    }
-
-
-
-
 }

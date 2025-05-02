@@ -11,19 +11,16 @@ public enum MapEntity {
     Bombe('K'),
     NestWasp('n'),
 
-
     Gardener('P'),
     Wasps('W'),
 
     Hornets('Z'),
     Hedgehog('H'),
 
-
     DoorPrevOpened('<'),
     DoorNextOpened('>'),
     DoorNextClosed('D'),
     NestHornet('N');
-
 
     private final char code;
 
@@ -37,10 +34,6 @@ public enum MapEntity {
                 return mapEntity;
         }
         throw new MapException("Invalid character " + c);
-    }
-
-    public char getCode() {
-        return this.code;
     }
 
     @Override
