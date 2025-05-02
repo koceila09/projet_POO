@@ -68,6 +68,4 @@ public class ImageResourceFactory {
         return get(ImageResource.DOOR_OPENED);
     }
 
-
-
 }

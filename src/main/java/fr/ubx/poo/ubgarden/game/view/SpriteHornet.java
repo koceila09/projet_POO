@@ -30,7 +30,6 @@ public class SpriteHornet extends Sprite {
         }
     }
 
-
     public Image getImage(Direction direction) {
         return ImageResourceFactory.getInstance().getHornet(direction);
     }

@@ -48,6 +48,3 @@ public final class SpriteFactory {
         throw new RuntimeException("Unsupported sprite for decor " + gameObject);
     }
 }
-
-
-

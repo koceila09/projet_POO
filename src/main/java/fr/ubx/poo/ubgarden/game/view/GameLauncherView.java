@@ -66,7 +66,6 @@ public class GameLauncherView extends BorderPane {
             }
         });
 
-
         defaultItem.setOnAction(e -> {
             File file = new File("world/world_3level_clear.properties");
             Game game = GameLauncher.getInstance().load(file);
@@ -86,11 +85,9 @@ public class GameLauncherView extends BorderPane {
 
     }
 
-
     private void resizeStage() {
         stage.sizeToScene();
         stage.hide();
         stage.show();
     }
-
 }

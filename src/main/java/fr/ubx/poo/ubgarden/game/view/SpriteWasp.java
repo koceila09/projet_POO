@@ -21,9 +21,7 @@ public class SpriteWasp extends Sprite {
             setImage(getImage(wasp.getDirection()));
         }
     }
-
-
-
+    
     public Image getImage(Direction direction) {
         return ImageResourceFactory.getInstance().getWasp(direction);
     }

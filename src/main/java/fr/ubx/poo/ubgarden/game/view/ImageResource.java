@@ -6,7 +6,6 @@ public enum ImageResource {
 
     ENERGY("energy.png"), TREE("tree.jpg"),
 
-
     // Bonus
     POISONED_APPLE("poisonedApple.png"), APPLE("apple.png"),
 
@@ -15,11 +14,8 @@ public enum ImageResource {
 
     DOOR_OPENED("door_opened.png"), DOOR_CLOSED("door_closed.png"),DOOR_NEXT_OPENED("door_opened.png"),
 
-
-
     // Gardener and hornets
     GARDENER_UP("gardener_up.png"), GARDENER_RIGHT("gardener_right.png"), GARDENER_DOWN("gardener_down.png"), GARDENER_LEFT("gardener_left.png"),
-
 
     HEDGEHOG("hedgehog.png"),
 
@@ -33,7 +29,6 @@ public enum ImageResource {
     WASP_UP("wasp_up.png"), WASP_RIGHT("wasp_right.png"), WASP_DOWN("wasp_down.png"), WASP_LEFT("wasp_left.png"),
     HORNET_UP("hornet_up.png"), HORNET_RIGHT("hornet_right.png"), HORNET_DOWN("hornet_down.png"), HORNET_LEFT("hornet_left.png");
 
-
     public static final int size = 40;
     private final String fileName;
 
@@ -45,6 +40,4 @@ public enum ImageResource {
         return fileName;
     }
 
-
 }
-

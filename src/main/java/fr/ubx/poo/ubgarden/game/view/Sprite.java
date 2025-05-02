@@ -20,7 +20,6 @@ public class Sprite {
     private Image image;
     private Effect effect;
 
-
     public Sprite(Pane layer, Image image, GameObject gameObject) {
         this.layer = layer;
         this.image = image;
