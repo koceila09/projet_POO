@@ -27,8 +27,6 @@ public class Game {
     private int switchLevel;
     private int carrotCount = 0;
 
-
-
     public Game(World world, Configuration configuration, Position gardenerPosition,
                 List<Position> waspPositions, List<Position> hornetPositions) {
         this.configuration = configuration;
@@ -45,7 +43,6 @@ public class Game {
         this.hornets = new ArrayList<>(hornetPositions.stream()
                 .map(pos -> new Hornets(this, pos))
                 .toList());
-
     }
 
     private boolean gameOver = false;
@@ -65,13 +62,6 @@ public class Game {
         return gameWon;
     }
 
-
-
-
-
-
-
-
     public Configuration configuration() {
         return configuration;
     }
@@ -87,17 +77,6 @@ public class Game {
     public List<Hornets> getHornets() {
         return hornets; // Renvoie la liste des frelons
     }
-    public List<Position> getWaspPositions() {
-        return waspPositions; // Renvoie les positions des guêpes
-    }
-
-    public List<Position> getHornetPositions() {
-        return hornetPositions; // Renvoie les positions des frelons
-    }
-
-
-
-
 
     public World world() {
         return world;
@@ -128,30 +107,10 @@ public class Game {
         }
     }
 
-
     // Autres attributs et méthodes...
-
-    public void setCarrotCount(int count) {
-        this.carrotCount = count;
-    }
 
     public void collectCarrot() {
         carrotCount--;
-    }
-
-    public boolean allCarrotsCollected() {
-        return carrotCount <= 0;
-    }
-
-
-    private boolean doorsOpened = false;
-
-    public boolean areDoorsOpened() {
-        return doorsOpened;
-    }
-
-    public void setDoorsOpened(boolean opened) {
-        this.doorsOpened = opened;
     }
 
     private GameEngine engine;
@@ -163,6 +122,5 @@ public class Game {
     public void setGameEngine(GameEngine engine) {
         this.engine = engine;
     }
-
 
 }

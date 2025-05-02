@@ -30,12 +30,9 @@ public enum Direction {
         public Position nextPosition(Position pos, int delta) {
             return new Position(pos.level(), pos.x() - delta, pos.y());
         }
-    },
-    ;
+    };
 
     private static final Random randomGenerator = new Random();
-
-
 
     public abstract Position nextPosition(Position pos, int delta);
 
@@ -56,6 +53,5 @@ public enum Direction {
         Direction[] values = values();
         return values[(int)(Math.random() * values.length)];
     }
-
 
 }

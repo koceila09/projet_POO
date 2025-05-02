@@ -13,8 +13,6 @@ public class Level implements Map {
 
     private final int level;
     private final int width;
-    private Position gardenerPosition;
-
     private final int height;
 
     private final java.util.Map<Position, Decor> decors = new HashMap<>();
@@ -124,21 +122,13 @@ public class Level implements Map {
         return decors.values();
     }
 
-
     @Override
     public boolean inside(Position position) {
         int x = position.x();
         int y = position.y();
         return x >= 0 && x < width && y >= 0 && y < height;
     }
-    public java.util.Map<Position, Decor> getDecors() {
-        return decors;
-    }
 
-
-    public Position getGardenerPosition() {
-        return gardenerPosition;
-    }
     public void removeClosedDoors() {
 
         for (Decor decor : values()) {
@@ -149,10 +139,4 @@ public class Level implements Map {
             }
         }
     }
-
-
-
-
-
-
 }
