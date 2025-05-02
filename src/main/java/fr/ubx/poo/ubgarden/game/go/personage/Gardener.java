@@ -41,8 +41,6 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
     private long lastPoisonedEffectTime = 0; // Temps de la dernière perte d'énergie
     private int poisonedApplesCollected = 0;
 
-
-
     public Gardener(Game game, Position position) {
 
         super(game, position);
@@ -60,8 +58,8 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
         if (decor != null && decor.getBonus() == energyBoost) {
             decor.setBonus(null); // Supprimer définitivement la pomme
         }
-
     }
+
     public void pickUp(Carrots carrots) {
         System.out.println("Vous avez ramassé une carotte !");
         carrots.setDeleted(true);
@@ -88,24 +86,13 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
         }
     }
 
-
-
-
-
     public int getEnergy() {
         return this.energy;
     }
-    public int getMaxEnergy() {
-        return maxEnergy;
-    }
+
     public void setEnergy(int energy) {
         this.energy = Math.min(energy, maxEnergy); // Limiter l'énergie au maximum autorisé
     }
-
-
-
-
-
 
     public void requestMove(Direction direction) {
         if (direction != this.direction) {
@@ -138,10 +125,6 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
 
     private int carrotsCollected = 0;
 
-    public int getCarrotsCollected() {
-        return carrotsCollected;
-    }
-
     public void collectCarrot() {
         carrotsCollected++;
     }
@@ -171,6 +154,7 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
             System.out.println("Porte ouverte, passage au niveau suivant !");
             game.requestSwitchLevel(game.world().currentLevel() + 1);
         }
+
         if (decor instanceof DoorPrevOpened) {
             System.out.println("Porte ouverte, passage au niveau suivant !");
             game.requestSwitchLevel(game.world().currentLevel() -1 );
@@ -195,8 +179,6 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
 
         return nextPos;
     }
-
-
 
     public boolean hasFoundHedgehog() {
         // Récupérer l'entité à la position actuelle du jardinier
@@ -224,8 +206,6 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
         }
     }
 
-
-
     public void hurt(int damage) {
         this.energy -= damage;
         if (this.energy <= 0) {
@@ -236,16 +216,8 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
         }
     }
 
-
-
     public Direction getDirection() {
         return direction;
-    }
-
-
-
-    public int getDiseaseLevel() {
-        return diseaseLevel; // Retourne le niveau de maladie du jardinier
     }
 
     public int getInsecticideNumber() {
@@ -274,10 +246,6 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
         return game.world().getGrid().get(getPosition());
     }
 
-
-
-
-
     public void pickUp(PoisonedApple poisonedApple) {
         System.out.println("Vous avez ramassé une pomme empoisonnée !");
 
@@ -292,12 +260,10 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
             decor.setBonus(null);
         }
     }
+
     public int getPoisonedApplesCollected() {
         return poisonedApplesCollected;
     }
-
-
-
 
     public void increaseDiseaseLevel(int effectMultiplier) {
         // Réduire l'effet de la maladie en fonction du nombre de bombes insecticides
@@ -318,8 +284,6 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
         System.out.println("Vous êtes affecté par une pomme empoisonnée ! Perte d'énergie totale : " + energyDrainPerSecond + " par seconde.");
     }
 
-
-
     public void updatePoisonedEffect() {
         long now = System.currentTimeMillis();
 
@@ -336,9 +300,6 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
         }
     }
 
-
-
-
     public void doMove(Direction direction) {
         Position nextPos = direction.nextPosition(getPosition());
 
@@ -354,11 +315,4 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
 
         // Et on peut aussi retirer de l’énergie ici si besoin
     }
-
-
-
-
-
-
-
 }

@@ -25,7 +25,6 @@ public class Wasps extends GameObject implements Movable, PickupVisitor, WalkVis
 
     private final Timer moveTimer;
     private int steps = 0;
-    private final int maxSteps = 15;
 
     public Wasps(Game game, Position position) {
         super(game, position);
@@ -33,9 +32,6 @@ public class Wasps extends GameObject implements Movable, PickupVisitor, WalkVis
         this.moveTimer = new Timer(game.configuration().waspMoveFrequency() * 1000); // ✅ basé sur config
         // 1 pas par seconde
     }
-
-
-
 
     @Override
     public boolean canMove(Direction direction) {
@@ -54,7 +50,6 @@ public class Wasps extends GameObject implements Movable, PickupVisitor, WalkVis
             // pas besoin de setModified ici si pas de changement de direction
         }
         return getPosition();
-
     }
 
     public void interactWith(Gardener gardener) {
@@ -74,18 +69,8 @@ public class Wasps extends GameObject implements Movable, PickupVisitor, WalkVis
         return direction;
     }
 
-    private void die() {
-        setDeleted(false);
-    }
     private GameEngine engine;
 
-    public void setGameEngine(GameEngine engine) {
-        this.engine = engine;
-    }
-
-    public GameEngine getGameEngine() {
-        return engine;
-    }
     @Override
     public void update(long now) {
         collisionHandled = false;
@@ -136,6 +121,7 @@ public class Wasps extends GameObject implements Movable, PickupVisitor, WalkVis
                     }
                 }
             }
+
             // 💥 Vérifier si la guêpe marche sur une bombe
             Decor decor = game.world().getGrid().get(getPosition());
             if (decor != null && decor.getBonus() instanceof fr.ubx.poo.ubgarden.game.go.bonus.Bombe_insecticide bomb) {
@@ -145,10 +131,7 @@ public class Wasps extends GameObject implements Movable, PickupVisitor, WalkVis
                 decor.setBonus(null);   // Retire la bombe de la grille
                 return;                 // Stoppe tout
             }
-
-
             moveTimer.start();
         }
     }
-
 }

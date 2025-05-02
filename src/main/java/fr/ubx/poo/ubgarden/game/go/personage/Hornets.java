@@ -26,8 +26,6 @@ public class Hornets extends GameObject implements Movable, PickupVisitor, WalkV
 
     private final Timer moveTimer;
     private int steps = 0;
-    private final int maxSteps = 15;
-
 
     public Hornets(Game game, Position position) {
         super(game, position);
@@ -37,8 +35,6 @@ public class Hornets extends GameObject implements Movable, PickupVisitor, WalkV
 
     @Override
     public void update(long now) {
-
-
 
         collisionHandled = false;
         moveTimer.update(now);
@@ -84,6 +80,7 @@ public class Hornets extends GameObject implements Movable, PickupVisitor, WalkV
                     }
                 }
             }
+
             // 💥 Vérifier si la guêpe marche sur une bombe
             Decor decor = game.world().getGrid().get(getPosition());
             if (decor != null && decor.getBonus() instanceof fr.ubx.poo.ubgarden.game.go.bonus.Bombe_insecticide bomb) {
@@ -94,7 +91,6 @@ public class Hornets extends GameObject implements Movable, PickupVisitor, WalkV
                 return;                 // Stoppe tout
             }
 
-
             moveTimer.start();
         }
     }
@@ -102,6 +98,7 @@ public class Hornets extends GameObject implements Movable, PickupVisitor, WalkV
     @Override
     public boolean canMove(Direction direction) {
         Position nextPos = direction.nextPosition(getPosition());
+
         if (!game.world().getGrid().inside(nextPos))
             return false;
         Decor decor = game.world().getGrid().get(nextPos);
@@ -116,15 +113,7 @@ public class Hornets extends GameObject implements Movable, PickupVisitor, WalkV
         }
         return getPosition();
     }
-    private GameEngine engine;
 
-    public void setGameEngine(GameEngine engine) {
-        this.engine = engine;
-    }
-
-    public GameEngine getGameEngine() {
-        return engine;
-    }
     public Direction getDirection() {
         return direction;
     }
