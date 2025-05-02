@@ -11,6 +11,7 @@ public interface Walkable {
      * @param gardener the gardener attempting to walk
      * @return true if the gardener can walk on it, false otherwise
      */
+
     boolean walkableBy(Gardener gardener);
 
     /**
@@ -18,6 +19,7 @@ public interface Walkable {
      *
      * @return the energy cost of walking, defaults to 0
      */
+
     default int energyConsumptionWalk() {
         return 0;
     }

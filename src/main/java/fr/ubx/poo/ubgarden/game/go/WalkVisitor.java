@@ -10,6 +10,7 @@ public interface WalkVisitor {
      * @param decor the decor to evaluate
      * @return true if the visitor can walk on the decor, false by default
      */
+
     default boolean canWalkOn(Decor decor) {
         return true;
     }
@@ -20,6 +21,7 @@ public interface WalkVisitor {
      * @param tree the tree to evaluate
      * @return true if the visitor can walk on the tree, false by default
      */
+    
     default boolean canWalkOn(Tree tree) {
         return false;
     }

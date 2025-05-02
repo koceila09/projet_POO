@@ -10,7 +10,9 @@ import fr.ubx.poo.ubgarden.game.Position;
 /**
  * A GameObject is an entity in the grid, it may know its position
  */
+
 public abstract class GameObject {
+
     public final Game game;
     private boolean deleted = false;
     private boolean modified = true;
@@ -48,6 +50,7 @@ public abstract class GameObject {
 
     public void update(long now) {
     }
+
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
         setModified(true);
