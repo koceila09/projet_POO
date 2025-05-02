@@ -146,9 +146,6 @@ public final class GameEngine {
         };
     }
 
-
-
-
     private void checkCollision() {
         for (Wasps wasp : game.getWasps()) {
             if (wasp.getPosition().equals(gardener.getPosition())) {
@@ -341,7 +338,6 @@ public final class GameEngine {
             }
         }
 
-
         hornetTimer.update(now);
         if (!hornetTimer.isRunning()) {
             for (Hornets hornet : hornets) {
@@ -358,15 +354,7 @@ public final class GameEngine {
             }
             hornetTimer.start();
         }
-
-
-
-
-
     }
-
-
-
 
     public void cleanupSprites() {
         sprites.forEach(sprite -> {
@@ -379,7 +367,6 @@ public final class GameEngine {
         sprites.removeAll(cleanUpSprites);
         cleanUpSprites.clear();
     }
-
 
     private void render() {
         sprites.forEach(Sprite::updateImage);
@@ -398,19 +385,13 @@ public final class GameEngine {
     public void handle(long now) {
         checkLevel();
         processInput();
-
         gardener.update(now);
-
         update(now);
         checkCollision();
         cleanupSprites();
         render();
         statusBar.update(game);
     }
-
-
-
-
 
     private void checkLevel() {
         if (game.isSwitchLevelRequested()) {
@@ -437,23 +418,11 @@ public final class GameEngine {
                     }
                 }
             }
-
             // Mise à jour du monde
             game.clearSwitchLevel();
             initialize(); // Recharge les décors et les sprites
         }
     }
-
-
-
-
-
-
-
-
-
-
-
 
     private boolean allCarrotsCollected() {
         return game.world().getGrid().values().stream()
@@ -470,8 +439,5 @@ public final class GameEngine {
         sprites.removeAll(cleanUpSprites);
         cleanUpSprites.clear();
     }
-
-
-
 
 }

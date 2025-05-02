@@ -40,10 +40,8 @@ public class Timer {
         else
             remaining = duration;
     }
-
     // Check if the timer is still running
     public boolean isRunning() {
         return running || requested;
     }
-
 }

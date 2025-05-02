@@ -35,12 +35,10 @@ public class StatusBar {
         level.getStyleClass().add("level");
         level.getChildren().add(new ImageView(ImageResourceFactory.getInstance().getDigit(gameLevel)));
 
-
         ds.setRadius(5.0);
         ds.setOffsetX(3.0);
         ds.setOffsetY(3.0);
         ds.setColor(Color.color(0.5f, 0.5f, 0.5f));
-
 
         HBox status = new HBox();
         status.getStyleClass().add("status");
@@ -94,5 +92,4 @@ public class StatusBar {
         // Mettre à jour le niveau du jeu
         updateLevel(game.world().currentLevel());
     }
-
 }
