@@ -120,14 +120,20 @@ public class Hornets extends GameObject implements Movable, PickupVisitor, WalkV
 
     public void interactWith(Gardener gardener) {
         if (!collisionHandled && !isDeleted()) {
-            System.out.println("Le jardinier a été piqué par un frelon !");
-            gardener.hurt(30);
-            health--;
-            collisionHandled = true;
-            if (health <= 0) {
-                System.out.println("Le frelon est mort !");
+            if(gardener.getInsecticideNumber() >= 1) {
+                gardener.setInsecticideNumber(gardener.getInsecticideNumber() - 1);
+                health = 0;
                 setDeleted(true);
+            } else {
+                System.out.println("Le jardinier a été piqué par un frelon !");
+                gardener.hurt(30);
+                health--;
+                if (health <= 0) {
+                    System.out.println("Le frelon est mort !");
+                    setDeleted(true);
+                }
             }
+            collisionHandled = true;
         }
     }
 }
