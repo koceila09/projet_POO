@@ -22,7 +22,7 @@ public class Hornets extends GameObject implements Movable, PickupVisitor, WalkV
 
     private Direction direction;
     private boolean collisionHandled = false;
-    private int health = 2;
+    private int health = 1;
 
     private final Timer moveTimer;
     private int steps = 0;
@@ -74,7 +74,7 @@ public class Hornets extends GameObject implements Movable, PickupVisitor, WalkV
                                 bomb.setModified(true);
                                 Sprite sprite = SpriteFactory.create(game.getGameEngine().getLayer(), bomb);
                                 game.getGameEngine().addSprite(sprite);
-                                System.out.println("💣 frelons a posé une bombe à " + bombPos);
+                                System.out.println("frelons a posé une bombe à " + bombPos);
                                 break; // seulement une bombe
                             }
                         }
@@ -85,7 +85,7 @@ public class Hornets extends GameObject implements Movable, PickupVisitor, WalkV
             // 💥 Vérifier si la guêpe marche sur une bombe
             Decor decor = game.world().getGrid().get(getPosition());
             if (decor != null && decor.getBonus() instanceof fr.ubx.poo.ubgarden.game.go.bonus.Bombe_insecticide bomb) {
-                System.out.println("💥 frelons touchée par une bombe et morte !");
+                System.out.println("frelons touchée par une bombe et morte !");
                 setDeleted(true);       // Supprime la guêpe
                 bomb.setDeleted(true);  // Supprime le sprite visuel de la bombe
                 decor.setBonus(null);   // Retire la bombe de la grille
@@ -123,18 +123,15 @@ public class Hornets extends GameObject implements Movable, PickupVisitor, WalkV
         if (!collisionHandled && !isDeleted()) {
             if (gardener.getInsecticideNumber() >= 2) {
                 gardener.setInsecticideNumber(gardener.getInsecticideNumber() - 2);
-                System.out.println("💣 Le jardinier utilise 2 bombes et tue le frelon !");
+                System.out.println("Le jardinier utilise 2 bombes et tue le frelon !");
                 setDeleted(true);
             } else {
                 System.out.println("Le jardinier a été piqué par un frelon !");
                 gardener.hurt(30);
-                health--;
-                if (health <= 0) {
-                    setDeleted(true); // Le frelon meurt aussi après la piqûre
-
-                }
+                setDeleted(true); // Le frelon meurt aussi après la piqûre
             }
             collisionHandled = true;
         }
     }
+
 }

@@ -29,7 +29,7 @@ public class Wasps extends GameObject implements Movable, PickupVisitor, WalkVis
     public Wasps(Game game, Position position) {
         super(game, position);
         this.direction = Direction.random();
-        this.moveTimer = new Timer(game.configuration().waspMoveFrequency() * 1000);
+        this.moveTimer = new Timer(game.configuration().waspMoveFrequency() * 1000); // ✅ basé sur config
         this.moveTimer.start();
     }
 
@@ -47,7 +47,7 @@ public class Wasps extends GameObject implements Movable, PickupVisitor, WalkVis
         if (canMove(direction)) {
             Position nextPos = direction.nextPosition(getPosition());
             setPosition(nextPos);
-
+            // pas besoin de setModified ici si pas de changement de direction
         }
         return getPosition();
     }
@@ -56,12 +56,12 @@ public class Wasps extends GameObject implements Movable, PickupVisitor, WalkVis
         if (!collisionHandled && !isDeleted()) {
             if (gardener.getInsecticideNumber() >= 1) {
                 gardener.setInsecticideNumber(gardener.getInsecticideNumber() - 1);
-                System.out.println("💣 Le jardinier utilise une bombe et tue la guêpe !");
+                System.out.println("Le jardinier utilise une bombe et tue la guêpe !");
                 setDeleted(true);
             } else {
                 System.out.println("Le jardinier a été piqué par une guêpe !");
                 gardener.hurt(20);
-                setDeleted(true);
+                setDeleted(true); // La guêpe meurt aussi après la piqûre
             }
             collisionHandled = true;
         }
@@ -96,10 +96,10 @@ public class Wasps extends GameObject implements Movable, PickupVisitor, WalkVis
                 move(direction);
                 setModified(true);
 
-
+                // ➕ Incrémenter le compteur de pas
                 steps++;
 
-
+                // 💣 Si on a atteint 5 pas, créer une bombe
                 if (steps >= 5) {
                     steps = 0;
 
@@ -117,8 +117,8 @@ public class Wasps extends GameObject implements Movable, PickupVisitor, WalkVis
                                 bomb.setModified(true);
                                 Sprite sprite = SpriteFactory.create(game.getGameEngine().getLayer(), bomb);
                                 game.getGameEngine().addSprite(sprite);
-                                System.out.println("💣 Guêpe a posé une bombe à " + bombPos);
-                                break;
+                                System.out.println("Guêpe a posé une bombe à " + bombPos);
+                                break; // seulement une bombe
                             }
                         }
                     }
@@ -128,7 +128,7 @@ public class Wasps extends GameObject implements Movable, PickupVisitor, WalkVis
             // 💥 Vérifier si la guêpe marche sur une bombe
             Decor decor = game.world().getGrid().get(getPosition());
             if (decor != null && decor.getBonus() instanceof fr.ubx.poo.ubgarden.game.go.bonus.Bombe_insecticide bomb) {
-                System.out.println("💥 Guêpe touchée par une bombe et morte !");
+                System.out.println("Guêpe touchée par une bombe et morte !");
                 setDeleted(true);       // Supprime la guêpe
                 bomb.setDeleted(true);  // Supprime le sprite visuel de la bombe
                 decor.setBonus(null);   // Retire la bombe de la grille
