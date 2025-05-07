@@ -31,32 +31,32 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
     private boolean moveRequested = false;
     private int diseaseLevel = 0;
     private int insecticideNumber = 0;
-    private long poisonedEffectStartTime;
-    private int poisonedEffectDuration = 5000;
-    private int energyDrainPerSecond = 0;
-    private long diseaseStartTime;
+    private long poisonedEffectStartTime; // Stocke le moment où l'effet de la pomme commence
+    private int poisonedEffectDuration = 5000; // Durée de l'effet en millisecondes (5 secondes)
+    private int energyDrainPerSecond = 0; // Quantité d'énergie drainée par seconde (par défaut)
+    private long diseaseStartTime; // Stocke le moment où la maladie commence
     private int diseaseDuration = 5000;
     private long lastMoveTime;
-    private final Timer restTimer = new Timer(1000);
-    private long lastPoisonedEffectTime = 0;
+    private final Timer restTimer = new Timer(1000); // 1 seconde = 1000 ms\
+    private long lastPoisonedEffectTime = 0; // Temps de la dernière perte d'énergie
     private int poisonedApplesCollected = 0;
 
     public Gardener(Game game, Position position) {
 
         super(game, position);
         this.direction = Direction.DOWN;
-        this.maxEnergy = game.configuration().gardenerEnergy();
+        this.maxEnergy = game.configuration().gardenerEnergy(); // Énergie maximale initiale
         this.energy = maxEnergy;
     }
 
     @Override
     public void pickUp(EnergyBoost energyBoost) {
         System.out.println("Vous avez ramassé un bonus d'énergie !");
-        setEnergy(getEnergy() + energyBoost.getEnergyBoost());
-        energyBoost.setDeleted(true);
+        setEnergy(getEnergy() + energyBoost.getEnergyBoost()); // Augmenter l'énergie
+        energyBoost.setDeleted(true); // Supprimer le bonus après ramassage
         Decor decor = game.world().getGrid().get(getPosition());
         if (decor != null && decor.getBonus() == energyBoost) {
-            decor.setBonus(null);
+            decor.setBonus(null); // Supprimer définitivement la pomme
         }
     }
 
@@ -64,13 +64,13 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
         System.out.println("Vous avez ramassé une carotte !");
         carrots.setDeleted(true);
 
-
+        // Supprimer de la grille
         Decor decor = game.world().getGrid().get(getPosition());
         if (decor != null && decor.getBonus() == carrots) {
             decor.setBonus(null);
         }
 
-
+        // Informer le jeu qu'une carotte a été ramassée
         game.collectCarrot();
     }
 
@@ -149,7 +149,7 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
         // Nouveau décor après déplacement
         Decor decor = game.world().getGrid().get(getPosition());
 
-        // 👉 Vérifier si c'est une porte ouverte (attention : utiliser 'decor' et pas 'next')
+        // Vérifier si c'est une porte ouverte (attention : utiliser 'decor' et pas 'next')
         if (decor instanceof DoorNextOpened) {
             System.out.println("Porte ouverte, passage au niveau suivant !");
             game.requestSwitchLevel(game.world().currentLevel() + 1);
@@ -171,7 +171,7 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
         if (decor != null) {
             decor.pickUpBy(this);
 
-            // 👉 Après ramassage, vérifier s'il restait une carotte
+            // Après ramassage, vérifier s'il restait une carotte
             if (decor.getBonus() instanceof fr.ubx.poo.ubgarden.game.go.bonus.Carrots) {
                 collectCarrot();
             }
@@ -196,7 +196,7 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
         moveRequested = false;
 
         updateDiseaseLevel(); // pour la fatigue par pomme
-        updatePoisonedEffect(); // 👉 pour la perte d'énergie à cause du poison
+        updatePoisonedEffect(); // pour la perte d'énergie à cause du poison
 
         restTimer.update(now);
 
@@ -208,6 +208,12 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
 
     public void hurt(int damage) {
         this.energy -= damage;
+        if (this.energy <= 0) {
+            System.out.println("Le jardinier est mort ! Game Over.");
+            game.endGame(false); // Terminer la partie en indiquant la défaite
+        } else {
+            System.out.println("Vous avez perdu " + damage + " points d'énergie. Énergie restante : " + energy);
+        }
     }
 
     public Direction getDirection() {
@@ -236,17 +242,13 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
         }
     }
 
-    public Decor getCurrentDecor() {
-        return game.world().getGrid().get(getPosition());
-    }
-
     public void pickUp(PoisonedApple poisonedApple) {
         System.out.println("Vous avez ramassé une pomme empoisonnée !");
 
         applyPoisonedEffect(1);
         increaseDiseaseLevel(1);
 
-        this.poisonedApplesCollected++; // 🍏 Compter une pomme empoisonnée mangée
+        this.poisonedApplesCollected++; // Compter une pomme empoisonnée mangée
 
         poisonedApple.setDeleted(true);
         Decor decor = game.world().getGrid().get(getPosition());
@@ -272,7 +274,7 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
         this.poisonedEffectStartTime = System.currentTimeMillis(); // Démarre ou redémarre le poison
         this.poisonedEffectDuration = 5000; // 5 secondes (remise à 0 à chaque nouvelle pomme)
 
-        // 💥 Ajouter 5 points d'énergie drainée à chaque nouvelle pomme
+        // Ajouter 5 points d'énergie drainée à chaque nouvelle pomme
         this.energyDrainPerSecond += 5;
 
         System.out.println("Vous êtes affecté par une pomme empoisonnée ! Perte d'énergie totale : " + energyDrainPerSecond + " par seconde.");
@@ -282,7 +284,7 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
         long now = System.currentTimeMillis();
 
         if (now - poisonedEffectStartTime < poisonedEffectDuration) {
-            // 💥 Perdre 5 points toutes les 1000ms (1 seconde)
+            // Perdre 5 points toutes les 1000ms (1 seconde)
             if (now - lastPoisonedEffectTime >= 1000) {
                 hurt(energyDrainPerSecond);
                 lastPoisonedEffectTime = now; // Réinitialiser la minuterie
