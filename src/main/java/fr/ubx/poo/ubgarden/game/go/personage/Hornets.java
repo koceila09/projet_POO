@@ -30,7 +30,8 @@ public class Hornets extends GameObject implements Movable, PickupVisitor, WalkV
     public Hornets(Game game, Position position) {
         super(game, position);
         this.direction = Direction.random();
-        this.moveTimer = new Timer( 1000/ game.configuration().hornetMoveFrequency() ); // fréquence de déplacement
+        this.moveTimer = new Timer( 1000/ game.configuration().hornetMoveFrequency() ); // fréquence de déplacement\
+        this.moveTimer.start();
     }
 
     @Override

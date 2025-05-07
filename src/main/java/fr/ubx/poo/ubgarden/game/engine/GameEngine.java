@@ -102,18 +102,20 @@ public final class GameEngine {
                 bonus.setModified(true);
             }
         }
-        // Après avoir créé les sprites pour les décors et les bonus
+        // Nids de guêpes
         for (Decor decor : game.world().getGrid().values()) {
             if (decor instanceof fr.ubx.poo.ubgarden.game.go.decor.NestWasp) {
-                nestWaspTimers.put(decor.getPosition(), new Timer(5000)); // 5 secondes
+                nestWaspTimers.put(decor.getPosition(), new Timer(5000)); // 🐝
             }
         }
-        // Après avoir créé les sprites pour les décors et les bonus
+
+        // Nids de frelons
         for (Decor decor : game.world().getGrid().values()) {
             if (decor instanceof fr.ubx.poo.ubgarden.game.go.decor.NestHornet) {
-                nestWaspTimers.put(decor.getPosition(), new Timer(5000)); // 5 secondes
+                nestHornetTimers.put(decor.getPosition(), new Timer(10000)); // 🦂
             }
         }
+
         // Ajouter un sprite pour le jardinier
         sprites.add(new SpriteGardener(layer, gardener));
 
@@ -121,6 +123,7 @@ public final class GameEngine {
         for (Wasps wasp : wasps) {
             sprites.add(new SpriteWasp(layer, wasp));
         }
+
 
         // Ajouter des sprites pour chaque frelon
         for (Hornets hornet : hornets) {
@@ -222,54 +225,15 @@ public final class GameEngine {
             timer.update(now);
 
             if (!timer.isRunning()) {
-                List<Position> possiblePositions = new ArrayList<>();
-
-                for (Direction dir : Direction.values()) {
-                    Position candidate = dir.nextPosition(nestPos);
-                    if (game.world().getGrid().inside(candidate)) {
-                        Decor decor = game.world().getGrid().get(candidate);
-                        boolean isGrass = decor instanceof fr.ubx.poo.ubgarden.game.go.decor.ground.Grass;
-                        boolean noWasp = wasps.stream().noneMatch(w -> w.getPosition().equals(candidate));
-                        if (isGrass && noWasp) {
-                            possiblePositions.add(candidate);
-                        }
-                    }
-                }
-
-                if (!possiblePositions.isEmpty()) {
-                    Random random = new Random();
-                    Position spawnPos = possiblePositions.get(random.nextInt(possiblePositions.size()));
-
-                    // Créer la guêpe
-                    Wasps newWasp = new Wasps(game, spawnPos);
-                    wasps.add(newWasp);
-                    sprites.add(new SpriteWasp(layer, newWasp));
-
-                    // Chercher une case autour pour la bombe
-                    List<Position> bombPositions = new ArrayList<>();
-                    for (Direction dir : Direction.values()) {
-                        Position bombPos = dir.nextPosition(spawnPos);
-                        if (game.world().getGrid().inside(bombPos)) {
-                            Decor bombDecor = game.world().getGrid().get(bombPos);
-                            if (bombDecor instanceof fr.ubx.poo.ubgarden.game.go.decor.ground.Grass &&
-                                    bombDecor.getBonus() == null) {
-                                bombPositions.add(bombPos);
-                            }
-                        }
-                    }
-
-                    if (!bombPositions.isEmpty()) {
-                        Position selected = bombPositions.get(random.nextInt(bombPositions.size()));
-                        Decor target = game.world().getGrid().get(selected);
-                        var bomb = new fr.ubx.poo.ubgarden.game.go.bonus.Bombe_insecticide(selected, target);
-                        target.setBonus(bomb);
-                        bomb.setModified(true);
-                        sprites.add(SpriteFactory.create(layer, bomb));
-                    }
-                }
+                // Créer directement une guêpe dans le nid
+                Wasps newWasp = new Wasps(game, nestPos);
+                wasps.add(newWasp);
+                sprites.add(new SpriteWasp(layer, newWasp));
 
                 timer.start();
             }
+
+
         }
         for (Map.Entry<Position, Timer> entry : nestHornetTimers.entrySet()) {
             Position nestPos = entry.getKey();
@@ -277,54 +241,37 @@ public final class GameEngine {
             timer.update(now);
 
             if (!timer.isRunning()) {
-                List<Position> possiblePositions = new ArrayList<>();
+                // Créer un frelon directement dans son nid
+                Hornets newHornet = new Hornets(game, nestPos);
+                hornets.add(newHornet);
+                sprites.add(new SpriteHornet(layer, newHornet));
 
-                for (Direction dir : Direction.values()) {
-                    Position candidate = dir.nextPosition(nestPos);
-                    if (game.world().getGrid().inside(candidate)) {
-                        Decor decor = game.world().getGrid().get(candidate);
-                        boolean isGrass = decor instanceof fr.ubx.poo.ubgarden.game.go.decor.ground.Grass;
-                        boolean noWasp = wasps.stream().noneMatch(w -> w.getPosition().equals(candidate));
-                        if (isGrass && noWasp) {
-                            possiblePositions.add(candidate);
+                // 🔥 Chercher deux positions libres pour placer deux bombes
+                List<Position> freePositions = new ArrayList<>();
+                for (int x = 0; x < game.world().getGrid().width(); x++) {
+                    for (int y = 0; y < game.world().getGrid().height(); y++) {
+                        Position p = new Position(game.world().currentLevel(), x, y);
+                        Decor decor = game.world().getGrid().get(p);
+                        if (decor instanceof fr.ubx.poo.ubgarden.game.go.decor.ground.Grass && decor.getBonus() == null) {
+                            freePositions.add(p);
                         }
                     }
                 }
 
-                if (!possiblePositions.isEmpty()) {
-                    Random random = new Random();
-                    Position spawnPos = possiblePositions.get(random.nextInt(possiblePositions.size()));
-
-                    // Créer la guêpe
-                    Hornets newHornet = new Hornets(game, spawnPos);
-                    hornets.add(newHornet);
-                    sprites.add(new SpriteHornet(layer, newHornet));
-
-                    // Chercher une case autour pour la bombe
-                    List<Position> bombPositions = new ArrayList<>();
-                    for (Direction dir : Direction.values()) {
-                        Position bombPos = dir.nextPosition(spawnPos);
-                        if (game.world().getGrid().inside(bombPos)) {
-                            Decor bombDecor = game.world().getGrid().get(bombPos);
-                            if (bombDecor instanceof fr.ubx.poo.ubgarden.game.go.decor.ground.Grass &&
-                                    bombDecor.getBonus() == null) {
-                                bombPositions.add(bombPos);
-                            }
-                        }
-                    }
-
-                    if (!bombPositions.isEmpty()) {
-                        Position selected = bombPositions.get(random.nextInt(bombPositions.size()));
-                        Decor target = game.world().getGrid().get(selected);
-                        var bomb = new fr.ubx.poo.ubgarden.game.go.bonus.Bombe_insecticide(selected, target);
-                        target.setBonus(bomb);
-                        bomb.setModified(true);
-                        sprites.add(SpriteFactory.create(layer, bomb));
-                    }
+                Random random = new Random();
+                for (int i = 0; i < 2 && !freePositions.isEmpty(); i++) { // ⬅️ Créer 2 bombes
+                    Position selected = freePositions.remove(random.nextInt(freePositions.size()));
+                    Decor target = game.world().getGrid().get(selected);
+                    var bomb = new fr.ubx.poo.ubgarden.game.go.bonus.Bombe_insecticide(selected, target);
+                    target.setBonus(bomb);
+                    bomb.setModified(true);
+                    sprites.add(SpriteFactory.create(layer, bomb));
                 }
 
                 timer.start();
             }
+
+
         }
 
         for (Wasps wasp : wasps) {

@@ -65,8 +65,8 @@ public class GameLauncher {
             MapLevelClear firstLevel = MapLevelClear.fromClear(properties.getProperty("level1"));
 
             Position gardenerPosition = firstLevel.getGardenerPosition();
-            List<Position> waspPositions = firstLevel.getWaspPositions();
-            List<Position> hornetPositions = firstLevel.getHornetPositions();
+            List<Position> waspPositions = List.of(); // Liste vide
+            List<Position> hornetPositions = List.of();
 
 
             if (gardenerPosition == null)

@@ -30,7 +30,7 @@ public class Wasps extends GameObject implements Movable, PickupVisitor, WalkVis
         super(game, position);
         this.direction = Direction.random();
         this.moveTimer = new Timer(game.configuration().waspMoveFrequency() * 1000); // ✅ basé sur config
-        // 1 pas par seconde
+        this.moveTimer.start();
     }
 
     @Override

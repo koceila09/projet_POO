@@ -36,13 +36,8 @@ public class Game {
         this.hornetPositions = hornetPositions; // Initialisation correcte
 
         // Initialiser les listes de guêpes et de frelons
-        this.wasps = new ArrayList<>(waspPositions.stream()
-                .map(pos -> new Wasps(this, pos))
-                .toList());
-
-        this.hornets = new ArrayList<>(hornetPositions.stream()
-                .map(pos -> new Hornets(this, pos))
-                .toList());
+        this.wasps = new ArrayList<>(); // Correction
+        this.hornets = new ArrayList<>();
     }
 
     private boolean gameOver = false;
