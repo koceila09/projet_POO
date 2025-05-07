@@ -22,7 +22,7 @@ public class Hornets extends GameObject implements Movable, PickupVisitor, WalkV
 
     private Direction direction;
     private boolean collisionHandled = false;
-    private int health = 1;
+    private int health = 2;
 
     private final Timer moveTimer;
     private int steps = 0;
@@ -128,10 +128,13 @@ public class Hornets extends GameObject implements Movable, PickupVisitor, WalkV
             } else {
                 System.out.println("Le jardinier a été piqué par un frelon !");
                 gardener.hurt(30);
-                setDeleted(true); // Le frelon meurt aussi après la piqûre
+                health--;
+                if (health <= 0) {
+                    setDeleted(true); // Le frelon meurt aussi après la piqûre
+
+                }
             }
             collisionHandled = true;
         }
     }
-
 }

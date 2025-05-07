@@ -17,12 +17,12 @@ public class EnergyBoost extends Bonus {
     }
 
     public int getEnergyBoost() {
-        return ENERGY_BOOST; // Retourne la quantité d'énergie
+        return ENERGY_BOOST;
     }
 
     @Override
     public void pickUpBy(Gardener gardener) {
-        gardener.pickUp(this); // Délègue l'effet au jardinier
+        gardener.pickUp(this);
     }
 
 

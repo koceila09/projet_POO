@@ -29,7 +29,7 @@ public class Wasps extends GameObject implements Movable, PickupVisitor, WalkVis
     public Wasps(Game game, Position position) {
         super(game, position);
         this.direction = Direction.random();
-        this.moveTimer = new Timer(game.configuration().waspMoveFrequency() * 1000); // ✅ basé sur config
+        this.moveTimer = new Timer(game.configuration().waspMoveFrequency() * 1000);
         this.moveTimer.start();
     }
 
@@ -47,7 +47,7 @@ public class Wasps extends GameObject implements Movable, PickupVisitor, WalkVis
         if (canMove(direction)) {
             Position nextPos = direction.nextPosition(getPosition());
             setPosition(nextPos);
-            // pas besoin de setModified ici si pas de changement de direction
+
         }
         return getPosition();
     }
@@ -61,7 +61,7 @@ public class Wasps extends GameObject implements Movable, PickupVisitor, WalkVis
             } else {
                 System.out.println("Le jardinier a été piqué par une guêpe !");
                 gardener.hurt(20);
-                setDeleted(true); // La guêpe meurt aussi après la piqûre
+                setDeleted(true);
             }
             collisionHandled = true;
         }
@@ -96,10 +96,10 @@ public class Wasps extends GameObject implements Movable, PickupVisitor, WalkVis
                 move(direction);
                 setModified(true);
 
-                // ➕ Incrémenter le compteur de pas
+
                 steps++;
 
-                // 💣 Si on a atteint 5 pas, créer une bombe
+
                 if (steps >= 5) {
                     steps = 0;
 
@@ -118,7 +118,7 @@ public class Wasps extends GameObject implements Movable, PickupVisitor, WalkVis
                                 Sprite sprite = SpriteFactory.create(game.getGameEngine().getLayer(), bomb);
                                 game.getGameEngine().addSprite(sprite);
                                 System.out.println("💣 Guêpe a posé une bombe à " + bombPos);
-                                break; // seulement une bombe
+                                break;
                             }
                         }
                     }

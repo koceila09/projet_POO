@@ -13,7 +13,7 @@ public class PoisonedApple extends Bonus {
 
     @Override
     public void pickUpBy(Gardener gardener) {
-        gardener.pickUp(this); // délègue au jardinier
+        gardener.pickUp(this);
     }
 
 }

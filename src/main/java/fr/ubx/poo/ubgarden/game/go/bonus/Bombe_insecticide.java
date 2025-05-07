@@ -16,7 +16,7 @@ public class Bombe_insecticide extends Bonus {
 
     @Override
     public void pickUpBy(Gardener gardener) {
-        gardener.pickUp(this); // Comme pour EnergyBoost ou PoisonedApple
+        gardener.pickUp(this);
     }
 
 }

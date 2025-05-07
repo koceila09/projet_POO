@@ -67,8 +67,7 @@ public class GameLauncherView extends BorderPane {
         });
 
         defaultItem.setOnAction(e -> {
-            File file = new File("world/world_3level_clear.properties");
-            Game game = GameLauncher.getInstance().load(file);
+            Game game = GameLauncher.getInstance().load();
             GameEngine engine = new GameEngine(game, stage.getScene());
             this.setCenter(engine.getRoot());
             engine.getRoot().requestFocus();

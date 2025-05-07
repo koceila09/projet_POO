@@ -17,9 +17,8 @@ public class Timer {
         remaining = duration;
     }
 
-    // Function to call as often as possible to update the timer (see update in GameEngine)
     public void update(long now) {
-        // time is in ns
+
         if (running) {
             remaining = duration * 1000000 - (now - startTime);
             if (remaining < 0) {
@@ -33,14 +32,14 @@ public class Timer {
         }
     }
 
-    // Start the timer
+
     public void start() {
         if (!running)
             requested = true;
         else
             remaining = duration;
     }
-    // Check if the timer is still running
+
     public boolean isRunning() {
         return running || requested;
     }

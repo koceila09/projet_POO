@@ -34,14 +34,10 @@ public class Level implements Map {
                         decors.put(position, new Hedgehog(position));
                         break;
                     case DoorNextClosed: {
-                         // 1. Créer la porte ouverte
-                        DoorNextClose doorClosed = new DoorNextClose(position); // 2. Créer le bonus porte fermée
-                        // 3. Mettre le bonus sur la porte ouverte
+                        DoorNextClose doorClosed = new DoorNextClose(position);
                         decors.put(position, doorClosed);
-
                         break;
                     }
-
                     case DoorPrevOpened:
                         decors.put(position, new DoorPrevOpened(position));
                         break;
