@@ -54,16 +54,19 @@ public class Wasps extends GameObject implements Movable, PickupVisitor, WalkVis
 
     public void interactWith(Gardener gardener) {
         if (!collisionHandled && !isDeleted()) {
-            System.out.println("Le jardinier a été piqué par une guêpe !");
-            gardener.hurt(20);
-            health--;
-            collisionHandled = true;
-            if (health <= 0) {
-                System.out.println("La guêpe est morte !");
+            if (gardener.getInsecticideNumber() >= 1) {
+                gardener.setInsecticideNumber(gardener.getInsecticideNumber() - 1);
+                System.out.println("💣 Le jardinier utilise une bombe et tue la guêpe !");
                 setDeleted(true);
+            } else {
+                System.out.println("Le jardinier a été piqué par une guêpe !");
+                gardener.hurt(20);
+                setDeleted(true); // La guêpe meurt aussi après la piqûre
             }
+            collisionHandled = true;
         }
     }
+
 
     public Direction getDirection() {
         return direction;
